@@ -1,0 +1,36 @@
+# Contoh blok server Nginx + PHP-FPM. Sesuaikan domain, path, dan versi PHP.
+server {
+    listen 80;
+    server_name absensi.contoh.ac.id;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name absensi.contoh.ac.id;
+
+    ssl_certificate     /etc/letsencrypt/live/absensi.contoh.ac.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/absensi.contoh.ac.id/privkey.pem;
+
+    # Document root WAJIB folder public/
+    root /var/www/smartcity-attendance/public;
+    index index.php;
+    client_max_body_size 2m;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    }
+
+    location ~* \.(css|js|svg|png|woff2?)$ {
+        expires 30d;
+        access_log off;
+    }
+
+    location ~ /\. { deny all; }
+}
