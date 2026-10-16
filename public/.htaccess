@@ -1,0 +1,13 @@
+# Arahkan semua permintaan ke index.php (front controller)
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|svg|png|woff2?)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
