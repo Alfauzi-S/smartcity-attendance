@@ -1,0 +1,12 @@
+# Dipakai bila document root server menunjuk ke folder proyek (bukan folder public/).
+# Semua permintaan diteruskan ke public/, sehingga app/, config/, storage/ tidak bisa diakses.
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(app|config|database|storage)(/|$) - [F,L]
+    RewriteRule ^$ public/ [L]
+    RewriteRule ^((?!public/).*)$ public/$1 [L]
+</IfModule>
+<FilesMatch "^(\.env|composer\.(json|lock)|README\.md|nginx\.conf\.example)$">
+    Require all denied
+</FilesMatch>
