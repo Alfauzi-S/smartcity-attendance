@@ -1,4 +1,0 @@
-/config/config.php
-/storage/*.sqlite
-/storage/*.sqlite-*
-/storage/logs/*.log
