@@ -11,7 +11,7 @@ $verifyUrl = full_url('v/' . $i['token']);
 <div class="card">
   <div class="card-h"><h3><?= e($i['full_name']) ?></h3><?= CertIssuance::badge($i['status']) ?></div>
   <dl class="kv">
-    <div><dt><?= e(t('Nomor sertifikat')) ?></dt><dd class="mono"><?= e($i['cert_number']) ?></dd></div>
+    <div><dt><?= e(t('Nomor sertifikat')) ?></dt><dd class="mono"><?= cert_no($i['cert_number']) ?></dd></div>
     <div><dt><?= e(t('Tanggal terbit')) ?></dt><dd><?= e(date_id($i['issue_date'])) ?></dd></div>
     <div><dt><?= e(t('Versi template / pola nomor')) ?></dt><dd><?= e(t('Template v:t · Pola v:n (:s)', ['t' => $i['template_version'], 'n' => $i['numbering_version'], 's' => t(\App\Models\CertNumbering::STATUSES[$i['numbering_status']][0])])) ?></dd></div>
     <div><dt><?= e(t('Di-generate')) ?></dt><dd><?= e(datetime_id($i['generated_at'])) ?> · @<?= e($i['generated_by_name'] ?? '—') ?></dd></div>
@@ -54,7 +54,7 @@ $verifyUrl = full_url('v/' . $i['token']);
     <tbody>
     <?php foreach ($history as $hh): ?>
       <tr<?= (int) $hh['id'] === (int) $i['id'] ? ' style="background:var(--cyan-bg)"' : '' ?>>
-        <td class="mono"><a href="<?= e(url('admin/sertifikat/' . $hh['id'])) ?>"><?= e($hh['cert_number']) ?></a></td>
+        <td class="mono"><a href="<?= e(url('admin/sertifikat/' . $hh['id'])) ?>"><?= cert_no($hh['cert_number']) ?></a></td>
         <td><?= CertIssuance::badge($hh['status']) ?></td>
         <td class="small"><?= e(datetime_id($hh['generated_at'])) ?></td>
         <td class="small" style="white-space:normal"><?= $hh['replaces_id'] ? e(t('Menggantikan penerbitan #:id', ['id' => $hh['replaces_id']])) . '<br>' : '' ?><?= $hh['revoke_reason'] ? e(t('Dicabut: :r', ['r' => $hh['revoke_reason']])) : '' ?></td>

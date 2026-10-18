@@ -12,7 +12,7 @@ $eid = (int) $event['id'];
   <div class="tblw"><table class="tbl">
     <thead><tr><th><?= e(t('Peserta')) ?></th><th><?= e(t('Nomor dicabut')) ?></th><th><?= e(t('Alasan')) ?></th><th><?= e(t('Pengganti')) ?></th><th><?= e(t('Waktu')) ?></th></tr></thead>
     <tbody><?php foreach ($changed as $c): ?>
-      <tr><td><?= e($c['full_name']) ?></td><td class="mono"><a href="<?= e(url('admin/sertifikat/' . $c['id'])) ?>"><?= e($c['cert_number']) ?></a></td><td style="white-space:normal"><?= e($c['revoke_reason']) ?></td>
+      <tr><td><?= e($c['full_name']) ?></td><td class="mono"><a href="<?= e(url('admin/sertifikat/' . $c['id'])) ?>"><?= cert_no($c['cert_number']) ?></a></td><td style="white-space:normal"><?= e($c['revoke_reason']) ?></td>
         <td class="mono"><?= $c['new_id'] ? '<a href="' . e(url('admin/sertifikat/' . $c['new_id'])) . '">' . e($c['new_number']) . '</a>' : '—' ?></td><td class="small"><?= e(datetime_id($c['revoked_at'])) ?></td></tr>
     <?php endforeach; ?></tbody>
   </table></div>

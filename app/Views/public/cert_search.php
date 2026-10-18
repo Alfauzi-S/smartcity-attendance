@@ -1,11 +1,11 @@
 <?php use App\Controllers\CertPublicController; ?>
-<div class="narrow stack" style="gap:16px">
+<div class="pad narrow stack" style="gap:16px">
   <div><h1 style="font-size:26px"><?= e(t('Cari Sertifikat')) ?></h1><p class="muted"><?= e(t('Pilih event, tulis nama lengkap Anda, lalu unduh sertifikat yang sudah diterbitkan panitia.')) ?></p></div>
   <?php if (!$events): ?>
     <div class="card"><div class="empty"><span class="eic"><?= icon('award', 26) ?></span><h3><?= e(t('Belum ada sertifikat yang diterbitkan')) ?></h3><p><?= e(t('Sertifikat akan tersedia di sini setelah panitia memublikasikannya.')) ?></p></div></div>
   <?php else: ?>
   <form method="get" action="<?= e(url('sertifikat')) ?>" class="card" role="search">
-    <div class="fld"><label for="event"><?= e(t('Event')) ?></label>
+    <div class="fld"><label for="event"><?= e(t('Nama event')) ?></label>
       <select class="inp" id="event" name="event" required>
         <option value=""><?= e(t('Pilih event')) ?></option>
         <?php foreach ($events as $ev): ?><option value="<?= (int) $ev['id'] ?>"<?= selected($eventId, $ev['id']) ?>><?= e($ev['name']) ?> · <?= e(date_id($ev['event_date'])) ?></option><?php endforeach; ?>

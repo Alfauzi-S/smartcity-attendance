@@ -362,3 +362,9 @@ function field_error(array $errors, string $key): string
     }
     return '<p class="msg" id="err-' . e($key) . '">' . icon('alert', 16) . '<span>' . e(t($errors[$key])) . '</span></p>';
 }
+
+/** Nomor sertifikat yang sudah di-escape, dengan titik patah baris setelah "/" agar rapi di layar sempit. */
+function cert_no(string $number): string
+{
+    return str_replace('/', '/<wbr>', e($number));
+}

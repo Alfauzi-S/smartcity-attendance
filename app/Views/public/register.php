@@ -20,7 +20,7 @@ $aria = static fn (string $k) => isset($errors[$k]) ? ' aria-invalid="true" aria
   <form method="post" action="<?= e(url('e/' . $event['slug'] . '/daftar')) ?>" class="card" novalidate data-loading="<?= e(t('Menyimpan registrasi…')) ?>">
     <?= csrf_field() ?>
     <div class="sr" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-    <p class="small muted"><?= e(t('Semua kolom wajib diisi')) ?> <span style="color:var(--error)">*</span></p>
+    <p class="small muted"><?= e(t('Semua kolom wajib diisi')) ?> <span style="color:var(--bad-ink)">*</span></p>
     <div class="g-form">
       <div class="<?= $cls('identity_number') ?>">
         <label for="identity_number"><?= e(t('Nomor Identitas')) ?><span class="req">*</span><span class="en"><?= e(t('NIM / NIP / NIK, hanya angka')) ?></span></label>

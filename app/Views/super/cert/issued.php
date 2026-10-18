@@ -34,7 +34,7 @@ $canPublish = can('cert_publish', $eid);
       <tr>
         <td><?php if ($i['status'] !== 'revoked'): ?><input type="checkbox" name="ids[]" value="<?= (int) $i['id'] ?>" aria-label="<?= e($i['full_name']) ?>" style="width:18px;height:18px"><?php endif; ?></td>
         <td style="white-space:normal"><a class="nm" href="<?= e(url('admin/sertifikat/' . $i['id'])) ?>"><?= e($i['full_name']) ?></a><br><span class="small muted"><?= e($i['institution']) ?></span></td>
-        <td class="mono" style="white-space:normal"><?= e($i['cert_number']) ?><?php if ($i['numbering_status'] === 'draft'): ?> <span class="bdg bdg-warn"><?= e(t('Pola belum disetujui')) ?></span><?php endif; ?></td>
+        <td class="mono" style="white-space:normal"><?= cert_no($i['cert_number']) ?><?php if ($i['numbering_status'] === 'draft'): ?> <span class="bdg bdg-warn"><?= e(t('Pola belum disetujui')) ?></span><?php endif; ?></td>
         <td><?= CertIssuance::badge($i['status']) ?><?php if ($i['replaces_id']): ?> <span class="bdg bdg-mute"><?= e(t('Terbit ulang')) ?></span><?php endif; ?></td>
         <td class="small"><?= e(datetime_id($i['generated_at'])) ?></td>
         <td class="r"><a class="btn btn-ghost sm" href="<?= e(url('admin/sertifikat/' . $i['id'] . '/unduh', ['lihat' => '1'])) ?>" target="_blank" rel="noopener"><?= icon('eye', 16) ?></a></td>

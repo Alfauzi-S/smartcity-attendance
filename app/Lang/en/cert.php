@@ -14,7 +14,7 @@ return [
     ':n digit' => ':n digits',
     ':n event' => ':n events',
     ':n event ditugaskan' => ':n events assigned',
-    ':n hasil ditemukan. Untuk melindungi data Anda, unduhan memerlukan konfirmasi.' => ':n results found. To protect your data, downloading requires confirmation.',
+    ':n hasil ditemukan. Untuk melindungi data Anda, unduhan memerlukan konfirmasi.' => 'Results found: :n. To protect your data, downloading requires confirmation.',
     ':n izin' => ':n permissions',
     ':n sertifikat menunggu publikasi' => ':n certificates awaiting publication',
     ':n sertifikat sudah memakai nomor di event ini' => ':n certificates already use a number in this event',
