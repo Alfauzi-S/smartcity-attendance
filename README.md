@@ -1,44 +1,89 @@
 # SmartCity Attendance
 
-An event registration and QR Code attendance website with a Smart City / Smart Campus theme.
-Built with PHP 8.1+ (OOP, no framework) and MySQL/MariaDB or SQLite.
+Event registration, QR Code attendance, and automatic certificates, with a Smart City / Smart Campus theme.
+Built with **PHP 8.1+ (OOP, no framework)** and **MySQL/MariaDB** (or SQLite for testing).
 
-**Live site:** [https://smartcity-unmul.web.id/](https://smartcity-unmul.web.id/)
+**Live demo:** [attd-demo.sinarputra.web.id/smartcity-attendance/public](https://attd-demo.sinarputra.web.id/smartcity-attendance/public/)
+
+**User manual (Indonesian, PDF, with screenshots):** [Manual-Book-SmartCity-Attendance.pdf](Manual-Book-SmartCity-Attendance.pdf)
+
+> Final project for the Object-Oriented Programming (PBO) course, Informatics (S1), Universitas Mulawarman.
+
+---
+
+## Contents
+
+- [Features](#features)
+- [User roles](#user-roles)
+- [How it works](#how-it-works)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Upgrading an existing installation](#upgrading-an-existing-installation)
+- [Certificates](#certificates)
+- [Security](#security)
+- [Project structure](#project-structure)
+- [OOP concepts](#oop-concepts)
+- [Main routes](#main-routes)
+- [Languages](#languages)
+- [Customization](#customization)
+- [Third-party libraries](#third-party-libraries)
+
+## Features
+
+- **Online registration** without an account: six required fields, one ID number per event.
+- **Personal QR ticket** that participants can download as a PNG or reopen from a ticket link.
+- **Camera QR scanner** for staff, with a fallback to ticket-code entry and name/ID search when the camera is unavailable.
+- **Live dashboard**: present, not yet present, attendance rate, and check-ins per 15 minutes.
+- **Manual status changes** by the Super Admin, each with a required reason and kept in a change history.
+- **Reports and export** to Excel (.xlsx) and CSV.
+- **Three admin roles**: Super Admin, Event Admin (per-event permissions), and Attendance Admin (scanning staff).
+- **Automatic certificates**: template editor, official assets, variables, approved number patterns, eligibility rules, bulk generation, publishing, revoking, reissuing, and public QR verification.
+- **Audit log** of every important action and every denied request.
+- **Grouped choices for Indonesia**: 38 professions in 5 groups and 126 study programs in 11 fields, plus “Other (type your own)”.
+- **Responsive** layout for phones and desktops, in **Indonesian and English**.
 
 ## User roles
 
 | Role | Login | Access |
 |---|---|---|
-| **Participant** | No | View events, register (6 required fields), receive a QR Code, download the QR (PNG) |
-| **Attendance Admin** | Yes | Scan QR codes, save attendance, enter codes or search manually, view the participant list of the assigned event |
-| **Event Admin** | Yes | Manages only the events a Super Admin assigned to them, and only with the permissions ticked for each assignment (edit event, participants, status changes, attendance, reports, certificates, publish, revoke, audit log) |
-| **Super Admin** | Yes | Everything: events, admin accounts and assignments, participants, manual Present/Absent status changes (with confirmation and a reason), change history, reports, CSV/Excel export, approving signatures, stamps and number patterns |
+| **Participant** | No | View events, register, get and download the QR ticket, find and download published certificates |
+| **Attendance Admin** | Yes | Scan QR codes, save attendance, enter codes or search manually, view participants of the assigned event |
+| **Event Admin** | Yes | Manage only the events a Super Admin assigned, with only the permissions ticked for each assignment |
+| **Super Admin** | Yes | Everything: events, admin accounts and assignments, participants, manual status changes, reports, certificates, approvals, and the full audit log |
 
 Participant statuses:
 
-- **Not yet verified**: the initial status after registration.
-- **Present**: recorded by a QR scan, or set manually by the Super Admin.
-- **Absent**: set by the Super Admin. This status is final, so the participant's QR can no longer be used.
+- **Not yet verified** (*Belum diverifikasi*): the status right after registration.
+- **Present** (*Hadir*): set by a QR scan, or manually by the Super Admin.
+- **Absent** (*Tidak Hadir*): set by the Super Admin. This status is final, so the QR can no longer be used.
 
-## Server requirements
+## How it works
 
-- PHP **8.1 or newer** with the `pdo_mysql` (or `pdo_sqlite`) and `mbstring` extensions
-- `gd` and `fileinfo` extensions: required for certificates (uploads are checked and re-encoded with GD)
-- `zip` extension: needed for Excel (.xlsx) export and for downloading certificates as a ZIP. CSV export works without it.
-- MySQL 5.7+ / MariaDB 10.3+ (or SQLite 3 for testing)
+1. The Super Admin creates an event, opens registration, and shares the registration link.
+2. Participants register and receive a personal QR ticket.
+3. On the event day the admin opens attendance, and staff scan QR codes at `/petugas/scan`.
+4. After the event, attendance is closed, absent participants are marked, and the summary is exported.
+5. Certificates are generated for eligible participants and published. Participants download them at `/sertifikat`, and anyone can verify one by scanning its QR.
+
+Step-by-step instructions with screenshots for every role are in the [user manual](Manual-Book-SmartCity-Attendance.pdf).
+
+## Requirements
+
+- PHP **8.1 or newer** with `pdo_mysql` (or `pdo_sqlite`) and `mbstring`
+- `gd` and `fileinfo` for certificates; `zip` for Excel export and certificate ZIP downloads (CSV works without it)
+- MySQL 5.7+ / MySQL 8 / MariaDB 10.3+ (or SQLite 3 for testing)
 - Apache with `mod_rewrite`, or Nginx
-- **HTTPS is required** for the scanner camera. Browsers only allow camera access on HTTPS or `localhost`. Without HTTPS, the scanner automatically falls back to code entry and manual search.
+- **HTTPS** for the scanner camera. Browsers only allow the camera on HTTPS or `localhost`; without it, the scanner falls back to code entry and manual search.
 
-## Deployment
+## Installation
 
 ### 1. Upload the files
 
-Extract the ZIP on the server, for example to `/var/www/smartcity-attendance`.
+Put the project on the server, for example in `/var/www/smartcity-attendance`.
 
-**Recommended:** point the domain's *document root* to the `public/` folder.
-If your hosting does not allow this (shared hosting / cPanel), put the whole folder in `public_html`. The `.htaccess` file in the project root forwards requests to `public/` and blocks access to `app/`, `config/`, `database/` and `storage/`.
+Point the domain's document root to the `public/` folder. On shared hosting (cPanel) you can put the whole folder in `public_html` instead: the root `.htaccess` forwards requests to `public/` and blocks `app/`, `bin/`, `config/`, `database/`, `storage/` and `vendor/`.
 
-### 2. Create the database (MySQL/MariaDB)
+### 2. Create the database
 
 ```sql
 CREATE DATABASE smartcity_attendance CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -46,8 +91,7 @@ CREATE USER 'smartcity'@'localhost' IDENTIFIED BY 'strong-password';
 GRANT ALL PRIVILEGES ON smartcity_attendance.* TO 'smartcity'@'localhost';
 ```
 
-You do not need to create the tables yourself; the installer in step 5 creates them.
-To create them manually instead, import `database/schema.mysql.sql`.
+The installer creates the tables. To create them manually, import `database/schema.mysql.sql`.
 
 ### 3. Configure
 
@@ -55,21 +99,21 @@ To create them manually instead, import `database/schema.mysql.sql`.
 cp config/config.example.php config/config.php
 ```
 
-Then edit `config/config.php`:
+Edit `config/config.php`:
 
-- `db.driver`, `db.host`, `db.database`, `db.username`, `db.password`
-- `timezone`: defaults to `Asia/Makassar` (WITA)
-- `locale`: default language, `'id'` (Indonesian) or `'en'` (English)
-- `debug`: **must be `false`** on a production server
-- `pretty_urls`: set to `false` if the server does not support URL rewriting (URLs become `/index.php/...`)
-- `base_url`: leave empty for automatic detection. Fill it in only if the app runs behind a reverse proxy. Certificate QR codes use this address, so set it if the detected address would be wrong.
-- `cert`: upload size limit, batch size for bulk generation, and rate limits for the public certificate pages
+| Key | Description |
+|---|---|
+| `db.*` | driver, host, database, username, password |
+| `timezone` | default `Asia/Makassar` (WITA) |
+| `locale` | default language: `'id'` or `'en'` |
+| `debug` | **must be `false`** in production |
+| `pretty_urls` | set to `false` if URL rewriting is unavailable (URLs become `/index.php/...`) |
+| `base_url` | leave empty for auto-detection; set it behind a reverse proxy, since certificate QR codes use it |
+| `cert` | upload size limit, bulk-generation batch size, public certificate rate limits |
 
-For a quick test without MySQL, use `'driver' => 'sqlite'`. The database file is created at `storage/database.sqlite`.
+For a quick test without MySQL, use `'driver' => 'sqlite'`; the file is created at `storage/database.sqlite`.
 
 ### 4. Folder permissions
-
-The web server must be able to write to `storage/`:
 
 ```bash
 chown -R www-data:www-data storage
@@ -78,164 +122,130 @@ chmod -R 775 storage
 
 ### 5. Run the installer
 
-Open `https://your-domain/install` in a browser:
+Open `https://your-domain/install`:
 
-1. Review the server checks; every item must show ✓.
-2. Create the **Super Admin** account.
-3. Optional: tick **demo data** for testing. It adds:
-   - the main demo event (156 participants, 98 present) with 2 Attendance Admins;
-   - a finished demo seminar (40 participants) with a ready certificate setup: a demo logo and background, demo variable values, an approved `DEMO/...` number pattern, and 31 sample certificates (published, generated, revoked and one reissue);
-   - an Event Admin account `event.demo` assigned to both events.
+1. Every server check must show ✓.
+2. Create the **Super Admin** account (password: at least 10 characters with letters and numbers).
+3. Optionally tick **demo data**. It adds two events (196 participants), two Attendance Admins, one Event Admin (`event.demo`), and a ready certificate setup with sample certificates. Demo passwords are shown once on the final screen.
 
-   The demo never creates a signature or stamp, and it leaves the global official variables empty. Every demo certificate is marked "SERTIFIKAT DEMO · TIDAK BERLAKU SEBAGAI DOKUMEN RESMI".
+`/install` locks itself (404) once the first Super Admin exists.
 
-Once the first Super Admin is created, `/install` locks itself (404).
+The demo never creates a signature or stamp, and every demo certificate is marked “SERTIFIKAT DEMO · TIDAK BERLAKU SEBAGAI DOKUMEN RESMI”.
 
-### 6. Start using it
+### Run it locally
 
-1. Sign in at `/masuk` as the Super Admin.
-2. **Events → Create event**, then set the event status to **Active** and **Open registration**.
-3. Copy the **registration link** and share it with participants.
-4. **Admin Accounts → Create account** for the scanning staff (Attendance Admin, one event), or for an organiser (Event Admin, then add one or more event assignments and tick the permissions).
-5. On the event day, open **Event details → Open attendance**. Staff scan QR codes at `/petugas/scan`.
-6. When it is over, **Close attendance**, mark participants who did not come as Absent, then export the summary from **Reports**.
+```bash
+cp config/config.example.php config/config.php   # set driver to 'sqlite'
+php -S localhost:8000 -t public public/index.php
+```
 
-### Upgrading an existing installation (Event Admin and certificates)
+Open `http://localhost:8000/install`. The camera works on `localhost` without HTTPS.
 
-The update only **adds** tables (`schema_migrations`, `event_admin_assignments`, `audit_logs`, `cert_*`). It does not drop, rename or empty any existing table, and existing events, participants, accounts and attendance stay as they are.
+## Upgrading an existing installation
 
-1. **Back up the database** and the `storage/` folder.
-2. Upload the new files, keeping your `config/config.php` and `storage/`. Copy the new `'cert' => [...]` block from `config/config.example.php` into your `config.php` (optional; defaults are used when it is missing).
-3. Run the migration, either way:
-   - from the command line: `php bin/migrate.php --yes`
-   - or sign in as Super Admin. The dashboard shows a **Run migration** banner while migrations are pending.
-4. Running the migration again is safe; applied files are recorded in `schema_migrations` and skipped.
+Updates only **add** tables and never drop, rename or empty existing ones, so events, participants, accounts and attendance stay intact.
 
-Fresh installs through `/install` run the migrations automatically.
+1. Back up the database and the `storage/` folder.
+2. Upload the new files, keeping your `config/config.php` and `storage/`.
+3. Run the migration with `php bin/migrate.php --yes`, or sign in as Super Admin and press **Run migration** on the dashboard banner. Running it twice is safe.
 
-To add the Event Admin and certificate demo to a site that is already installed, without touching existing data, run this as the web server user so the generated files stay writable:
+To add the Event Admin and certificate demo to an installed site without touching existing data:
 
 ```bash
 sudo -u www-data php bin/seed-demo.php --url=https://your-domain --yes
 ```
 
-`--url` sets the address in the demo QR codes. You can leave it out when `base_url` is set in the config. Running the script again does nothing once the demo exists.
-
-### Example Nginx configuration
-
-See `nginx.conf.example`. The key points: `root` must point to the `public/` folder, and `try_files $uri $uri/ /index.php?$query_string;`.
-
-### Running it on your own computer
-
-```bash
-cp config/config.example.php config/config.php   # change driver to 'sqlite'
-php -S localhost:8000 -t public public/index.php
-```
-
-Open `http://localhost:8000/install`. The camera works on `localhost` even without HTTPS.
-
 ## Certificates
 
-Menu **Certificates** (Super Admin, and Event Admins with the certificate permission):
+Menu **Certificates** (Super Admin, and Event Admins with a certificate permission):
 
-1. **Official assets**: upload logos, the official's signature and the stamp. Signatures and stamps uploaded by an Event Admin stay unusable until a Super Admin approves them. The app never draws a signature, stamp or logo itself; empty slots are shown as dashed boxes in the preview and block activation.
-2. **Variables**: fill in global values (university, faculty, signer name and title, letter code...) as Super Admin, override them per event, or add custom variables. Built-in placeholders such as `{PARTICIPANT_NAME}`, `{EVENT_NAME}`, `{CERTIFICATE_NUMBER}` and `{VERIFICATION_URL}` are filled automatically. Templates only do text substitution; nothing in a template is executed.
-3. **Number pattern**: for example `{SEQUENCE_PADDED}/{EVENT_CODE}/{FACULTY_LETTER_CODE}/{ROMAN_MONTH}/{YEAR}`. A new pattern is always a **Draft** and must be approved by a Super Admin. Use the official format confirmed by the faculty/administration office; the app does not invent one. Sequence numbers are taken inside a database transaction and are never reused, even when generating in parallel.
-4. **Template**: upload the background design (PNG/JPG, or the first page of a PDF), drag the elements into place, check the result with **PDF preview** (watermarked, consumes no number), then **Activate**. Activation stores a version snapshot; certificates already issued keep the version they were made with.
-5. **Eligibility**: Present only (default), everyone except Absent, or everyone (Super Admin only).
-6. **Generate**: for all eligible participants, a selection, or one participant. Bulk generation runs in small batches from the browser and can be resumed. A participant never gets two active certificates.
-7. **Publish**: certificates start as *Generated* (admin only). After publishing, participants find them at `/sertifikat` by event and name, and download after confirming the last 4 characters of their ID number or their ticket code. Each certificate has its own QR pointing to `/v/{token}`, separate from the attendance QR.
-8. **Revoke / reissue**: revoking needs a reason and marks the certificate invalid on the verification page. Reissuing revokes the old one and creates a new certificate with a new number; both stay in the history.
+1. **Official assets**: upload logos, signatures and stamps. Signatures and stamps from an Event Admin stay unusable until a Super Admin approves them. The app never draws a signature, stamp or logo itself.
+2. **Variables**: global values (university, faculty, signer, letter code) set by the Super Admin, per-event overrides, and custom variables. Built-in placeholders such as `{PARTICIPANT_NAME}`, `{EVENT_NAME}`, `{CERTIFICATE_NUMBER}` and `{VERIFICATION_URL}` fill in automatically. Templates only substitute text; nothing in a template is executed.
+3. **Number pattern**: for example `{SEQUENCE_PADDED}/{EVENT_CODE}/{FACULTY_LETTER_CODE}/{ROMAN_MONTH}/{YEAR}`. A new pattern starts as a Draft and needs Super Admin approval. Use the format confirmed by the faculty office. Sequence numbers are taken in a database transaction and never reused.
+4. **Template**: background (PNG/JPG or the first page of a PDF), drag-and-drop elements, watermarked **PDF preview**, then **Activate**. Issued certificates keep the template version they were made with.
+5. **Eligibility**: Present only (default), everyone not marked Absent, or everyone (Super Admin only).
+6. **Generate**: all eligible participants, a selection, or one participant. Bulk generation runs in resumable batches, and a participant never gets two active certificates.
+7. **Publish**: certificates start as *Generated* (admins only). Published ones can be found at `/sertifikat`; downloading requires the last 4 characters of the ID number or the ticket code.
+8. **Revoke / reissue**: revoking needs a reason and shows the certificate as invalid on `/v/{token}`. Reissuing creates a new certificate with a new number, and both stay in the history.
 
-Generated PDFs are stored in `storage/certificates/` with a SHA-256 hash that is checked on every download.
+Generated PDFs are stored with a SHA-256 hash that is checked on every download. The certificate QR is separate from the attendance QR.
 
-## Security measures
+## Security
 
-- Passwords are stored with `password_hash` (bcrypt/argon depending on PHP), and the session ID is regenerated after login.
-- CSRF tokens on every POST form and on the scanner API (`X-CSRF-Token` header).
-- Login attempt limit (5 per 15 minutes) and registration limit (30 per hour per IP), plus an anti-bot honeypot.
-- Role-based access control: Attendance Admins get a 403 on Super Admin pages and only see their assigned event.
-- Atomic check-in (`UPDATE ... WHERE status = 'belum'`), so duplicate scans or two staff scanning at the same time never create duplicate records.
-- Manual status changes run in a transaction and are recorded in `status_history` (old and new status, reason, who, when).
-- All queries use PDO *prepared statements*, and all HTML output is escaped.
-- Session cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` on HTTPS. Security headers are sent: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy` (camera allowed only for the site itself).
-- CSV export is protected against *formula injection*.
-- WhatsApp numbers are never sent to the scanner and are visible only to the Super Admin.
-- New accounts and password resets use a temporary password that must be changed at first login.
-- Event Admin access is deny-by-default and checked on the server for every request: the event of the object being opened (participant, template, certificate, job) is looked up in the database, so changing an ID in the URL, form or API body does not reach another event. Removing an assignment ends access immediately.
-- Every denied request and every important change (assignments, events, status, templates, numbering, generate, publish, revoke, public downloads and failed checks) is written to the audit log, without passwords or tokens.
-- Uploads are limited in size, checked by real content (MIME and image/PDF parsing, not the extension), re-encoded, and saved under random internal names outside `public/`.
-- Public certificate search shows published certificates only, masks institutions, and is rate limited, as are failed download confirmations.
+- Passwords hashed with `password_hash`; session ID regenerated after login; temporary passwords must be changed at first login.
+- CSRF tokens on every POST form and on the scanner API.
+- Rate limits: 5 logins per 15 minutes, 30 registrations per hour per IP, plus an anti-bot honeypot and limits on public certificate search and download checks.
+- Deny-by-default access, checked on the server for every request. The event of every object is looked up in the database, so changing an ID in a URL, form or API body never reaches another event.
+- Atomic check-in (`UPDATE ... WHERE status = 'belum'`), so duplicate or simultaneous scans never create duplicate records.
+- PDO prepared statements everywhere; all HTML output escaped; CSV export protected against formula injection.
+- `HttpOnly`, `SameSite=Lax` and (on HTTPS) `Secure` session cookies; `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` and `Permissions-Policy` headers.
+- Uploads limited in size, checked by real content (not the extension), re-encoded, and stored under random names outside `public/`.
+- WhatsApp numbers are never sent to the scanner; public certificate search masks institutions.
+- Important actions and denied requests go to the audit log, without passwords or tokens.
 
-## Folder structure
+## Project structure
 
 ```
 app/
-  Core/          Router, Database (PDO), Auth, View, RateLimiter, Migrator (runs database/migrations)
-  Models/        Event, Participant, User, StatusHistory, Assignment, AuditLog, Cert* (assets, templates, variables, numbering, issuances)
-  Services/      AttendanceService (attendance rules), Validator, Exporter (CSV/XLSX), DemoSeeder, Access (permissions per event)
-  Services/Cert/ Placeholders, Renderer (PDF), Issuer (readiness, generate, publish, revoke), Upload
-  Controllers/   Public, Auth, Staff, Api, Dashboard, Event, Account, Participant, Report, Settings, Install, Audit, Certificate, CertPublic
+  Core/          Router, Database (PDO), Auth, View, RateLimiter, Migrator
+  Models/        Event, Participant, ParticipantOptions, User, StatusHistory, Assignment, AuditLog, Cert*
+  Services/      AttendanceService, Validator, Exporter (CSV/XLSX), Access, DemoSeeder, CertDemoSeeder
+  Services/Cert/ Placeholders, Renderer (PDF), Issuer, Upload
+  Controllers/   Public, Auth, Staff, Api, Dashboard, Event, Account, Participant, Report,
+                 Settings, Install, Audit, Certificate, CertPublic
   Lang/en/       English translations
-  Views/         layouts, partials, public, staff and super admin pages
-  bootstrap.php  autoload, configuration, session, language, security headers
-  helpers.php    helper functions (url, e, csrf, t, date formatting, status badges)
-config/          config.example.php → copy to config.php
-bin/             migrate.php (command-line migration)
-database/        schema.mysql.sql, schema.sqlite.sql, migrations/ (additive updates)
+  Views/         layouts, partials, public, staff and admin pages
+  bootstrap.php  autoload, config, session, language, security headers
+  helpers.php    url, e, csrf, t, date formatting, badges
+bin/             migrate.php, seed-demo.php (command line only)
+config/          config.example.php -> copy to config.php
+database/        schema.mysql.sql, schema.sqlite.sql, migrations/
 public/          index.php (front controller), assets (css, js, vendor, img)
-storage/         SQLite database (optional), error log, uploaded certificate assets, generated PDFs
+storage/         SQLite file (optional), logs, certificate assets, generated PDFs
 vendor/          TCPDF and FPDI (bundled, no Composer needed)
 ```
 
-OOP concepts used:
+## OOP concepts
 
-- **Classes and namespaces** `App\...` with PSR-4 style autoloading
-- **Inheritance**: every controller extends `Controller` (rendering, current event, password change)
-- **Encapsulation**: database access only through the `Database` class and the models
-- **Separation of concerns**: models for data, services for business rules, controllers for the HTTP flow, views for presentation
+- **Classes and namespaces** under `App\...` with PSR-4 style autoloading.
+- **Inheritance**: every controller extends `Controller` (rendering, current event, password change).
+- **Encapsulation**: database access only through the `Database` class and the models.
+- **Separation of concerns**: models hold data, services hold business rules, controllers handle HTTP, views handle presentation.
 
 ## Main routes
 
 | URL | Description |
 |---|---|
-| `/e/{slug}` | Public event page |
+| `/` | Public home: events open for registration |
+| `/e/{slug}` | Event page |
 | `/e/{slug}/daftar` | Registration form |
-| `/t/{code}` | Participant QR ticket (the QR contains this URL) |
-| `/masuk` | Sign in for Attendance Admin / Super Admin |
+| `/t/{code}` | Participant QR ticket (the attendance QR contains this URL) |
+| `/sertifikat` | Find and download certificates |
+| `/v/{token}` | Certificate verification (the certificate QR contains this URL) |
+| `/masuk` | Sign in for all admins |
 | `/petugas`, `/petugas/scan` | Attendance Admin home and scanner |
 | `/admin` | Super Admin / Event Admin dashboard |
-| `/admin/sertifikat` | Certificates: templates, assets, variables, numbering, eligibility, generate, issued, history |
+| `/admin/sertifikat` | Certificates module |
 | `/admin/audit` | Audit log |
-| `/sertifikat` | Public certificate search and download |
-| `/v/{token}` | Public certificate verification (the certificate QR contains this URL) |
-| `/install` | First-time installation (locked once done) |
+| `/install` | First-time installation (locked afterwards) |
+
+## Languages
+
+Every page has an **ID / EN** switch, stored in a cookie for one year; the default comes from `locale` in the config. Source text is Indonesian in the code (`t('Simpan data')`), and English translations live in `app/Lang/en/`. User-entered data is not translated, and certificate PDFs are always in Indonesian.
+
+## Customization
+
+- **Profession and study program choices**: `PROFESSIONS` and `FIELDS` in `app/Models/ParticipantOptions.php` (grouped for `<optgroup>`), with English labels in `app/Lang/en/options.php`. Keep old values in the list so existing participant data stays valid.
+- **Colors and look**: CSS variables at the top of `public/assets/css/app.css`.
+- **Validation rules** (ID length, phone format): `app/Services/Validator.php`.
 
 ## Third-party libraries
 
-These libraries are bundled in `public/assets/vendor/`, so the app does not depend on a CDN:
+Bundled, so the app does not depend on a CDN:
 
-- [html5-qrcode](https://github.com/mebjas/html5-qrcode) 2.3.8, Apache-2.0: camera scanner
-- [qrcodejs](https://github.com/davidshimjs/qrcodejs) 1.0.0, MIT: generates the ticket QR image
+- [html5-qrcode](https://github.com/mebjas/html5-qrcode) 2.3.8 (Apache-2.0): camera scanner
+- [qrcodejs](https://github.com/davidshimjs/qrcodejs) 1.0.0 (MIT): ticket QR image
+- [TCPDF](https://github.com/tecnickcom/TCPDF) 6.11.4 (LGPL-3.0-or-later): certificate PDFs and certificate QR (DejaVu fonts only)
+- [FPDI](https://github.com/Setasign/FPDI) 2.6.9 (MIT): imports a PDF page as the certificate background
 
-Bundled in `vendor/` for certificates:
-
-- [TCPDF](https://github.com/tecnickcom/TCPDF) 6.11.4, LGPL-3.0-or-later: PDF generation and the certificate QR. Only the DejaVu fonts are included (DejaVu font license in `vendor/tecnickcom/tcpdf/fonts/`).
-- [FPDI](https://github.com/Setasign/FPDI) 2.6.9, MIT: imports the first page of a PDF background design
-
-The Sora and Inter fonts load from Google Fonts. If the server cannot reach the internet, the pages fall back to system fonts.
-
-## Two languages (Indonesian / English)
-
-Every page has an **ID / EN** button at the top. The choice is stored in a cookie for one year, and the default language is set with `locale` in `config/config.php`.
-
-- Source text is written in Indonesian in the code, for example `t('Simpan data')`.
-- English translations live in `app/Lang/en/`: `general.php` (public pages, sign in, shared text), `staff.php` (Attendance Admin), `super.php` (Super Admin), `cert.php` (Event Admin, audit log and certificates), and `js.php` (scanner, certificate editor and other JavaScript). Certificate PDFs themselves are always in Indonesian.
-- To change or add a translation, edit those files. Text without a translation is shown in Indonesian.
-- Data entered by users (names, institutions, event descriptions, change reasons) is not translated.
-
-## Quick customization
-
-- **Profession** and **Field of study** options: the `PROFESSIONS` and `FIELDS` constants in `app/Models/Participant.php` (add the English label to `app/Lang/en/general.php` too)
-- Colors and look: the CSS variables at the top of `public/assets/css/app.css`
-- Validation rules (ID number length, phone number format): `app/Services/Validator.php`
+The Sora and Inter fonts load from Google Fonts; without internet access the pages fall back to system fonts.
