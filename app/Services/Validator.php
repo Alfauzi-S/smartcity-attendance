@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Models\Event;
 use App\Models\Participant;
+use App\Models\ParticipantOptions;
 use App\Models\User;
 
 final class Validator
@@ -34,7 +35,7 @@ final class Validator
                 ? t('Nomor identitas ini sudah dipakai peserta lain di event yang sama.')
                 : t('Nomor identitas ini sudah terdaftar di event ini. Buka QR dari tautan yang Anda simpan atau hubungi panitia.');
         }
-        if (!in_array($d['profession'], Participant::PROFESSIONS, true)) {
+        if (!ParticipantOptions::valid($d['profession'], ParticipantOptions::professions(), ParticipantOptions::PROFESSION_MAX)) {
             $e['profession'] = t('Pilih profesi atau pekerjaan.');
         }
         if (mb_strlen($d['full_name']) < 3) {
@@ -52,7 +53,7 @@ final class Validator
         } elseif (mb_strlen($d['institution']) > 160) {
             $e['institution'] = t('Maksimal 160 karakter.');
         }
-        if (!in_array($d['field_of_study'], Participant::FIELDS, true)) {
+        if (!ParticipantOptions::valid($d['field_of_study'], ParticipantOptions::fields(), ParticipantOptions::FIELD_MAX)) {
             $e['field_of_study'] = t('Pilih program studi atau bidang studi.');
         }
         return $e;

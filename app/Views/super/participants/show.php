@@ -1,6 +1,7 @@
 <?php
 use App\Core\View;
 use App\Models\Participant;
+use App\Models\ParticipantOptions;
 
 $cls = static fn (string $k) => 'fld' . (isset($errors[$k]) ? ' is-err' : '');
 $base = 'admin/peserta/' . $p['id'];
@@ -23,11 +24,11 @@ $preset = in_array($openStatus, ['hadir', 'tidak'], true) ? $openStatus : '';
   <div class="card-h"><h3><?= e(t('Ubah data peserta')) ?></h3></div>
   <div class="g-form two">
     <div class="<?= $cls('identity_number') ?>"><label for="identity_number"><?= e(t('Nomor Identitas')) ?></label><input class="inp mono" id="identity_number" name="identity_number" inputmode="numeric" maxlength="18" value="<?= e($p['identity_number']) ?>"><?= field_error($errors, 'identity_number') ?></div>
-    <div class="<?= $cls('profession') ?>"><label for="profession"><?= e(t('Profesi / Pekerjaan')) ?></label><select class="inp" id="profession" name="profession"><?php foreach (Participant::PROFESSIONS as $o): ?><option value="<?= e($o) ?>"<?= selected($p['profession'], $o) ?>><?= e(t($o)) ?></option><?php endforeach; ?></select><?= field_error($errors, 'profession') ?></div>
+    <div class="<?= $cls('profession') ?>"><label for="profession"><?= e(t('Profesi / Pekerjaan')) ?></label><?= \App\Core\View::partial('option_select', ['name' => 'profession', 'groups' => ParticipantOptions::PROFESSIONS, 'value' => $p['profession'], 'otherLabel' => t('Tulis profesi atau pekerjaan'), 'max' => ParticipantOptions::PROFESSION_MAX]) ?><?= field_error($errors, 'profession') ?></div>
     <div class="<?= $cls('full_name') ?>"><label for="full_name"><?= e(t('Nama Lengkap beserta Gelar')) ?></label><input class="inp" id="full_name" name="full_name" maxlength="160" value="<?= e($p['full_name']) ?>"><?= field_error($errors, 'full_name') ?></div>
     <div class="<?= $cls('phone') ?>"><label for="phone"><?= e(t('Nomor WhatsApp / HP')) ?></label><input class="inp mono" id="phone" name="phone" type="tel" maxlength="16" value="<?= e($p['phone']) ?>"><?= field_error($errors, 'phone') ?></div>
     <div class="<?= $cls('institution') ?>"><label for="institution"><?= e(t('Institusi / Organisasi / Universitas')) ?></label><input class="inp" id="institution" name="institution" maxlength="160" value="<?= e($p['institution']) ?>"><?= field_error($errors, 'institution') ?></div>
-    <div class="<?= $cls('field_of_study') ?>"><label for="field_of_study"><?= e(t('Program Studi / Bidang Studi')) ?></label><select class="inp" id="field_of_study" name="field_of_study"><?php foreach (Participant::FIELDS as $o): ?><option value="<?= e($o) ?>"<?= selected($p['field_of_study'], $o) ?>><?= e(t($o)) ?></option><?php endforeach; ?></select><?= field_error($errors, 'field_of_study') ?></div>
+    <div class="<?= $cls('field_of_study') ?>"><label for="field_of_study"><?= e(t('Program Studi / Bidang Studi')) ?></label><?= \App\Core\View::partial('option_select', ['name' => 'field_of_study', 'groups' => ParticipantOptions::FIELDS, 'value' => $p['field_of_study'], 'otherLabel' => t('Tulis program studi atau bidang studi'), 'max' => ParticipantOptions::FIELD_MAX]) ?><?= field_error($errors, 'field_of_study') ?></div>
   </div>
   <div class="row" style="justify-content:flex-end"><a class="btn btn-ghost" href="<?= e(url($base)) ?>"><?= e(t('Batal')) ?></a><button class="btn btn-primary" type="submit"><?= e(t('Simpan data')) ?></button></div>
 </form>

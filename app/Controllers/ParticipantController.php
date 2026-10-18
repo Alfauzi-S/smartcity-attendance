@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Models\Event;
 use App\Models\Participant;
+use App\Models\ParticipantOptions;
 use App\Models\StatusHistory;
 use App\Services\AttendanceService;
 use App\Models\AuditLog;
@@ -78,11 +79,11 @@ final class ParticipantController extends Controller
         $p = $this->findOr404($id, $user, 'participants');
         $data = [
             'identity_number' => preg_replace('/\s+/', '', input('identity_number')) ?? '',
-            'profession' => input('profession'),
+            'profession' => ParticipantOptions::pick(input('profession'), input('profession_other')),
             'full_name' => preg_replace('/\s+/', ' ', input('full_name')) ?? '',
             'phone' => Validator::normalizePhone(input('phone')),
             'institution' => input('institution'),
-            'field_of_study' => input('field_of_study'),
+            'field_of_study' => ParticipantOptions::pick(input('field_of_study'), input('field_of_study_other')),
         ];
         $errors = Validator::registration($data, (int) $p['event_id'], (int) $p['id']);
         if ($errors) {

@@ -1,5 +1,6 @@
 <?php
 use App\Models\Participant;
+use App\Models\ParticipantOptions;
 
 $v = static fn (string $k) => e($old[$k] ?? '');
 $cls = static fn (string $k) => 'fld' . (isset($errors[$k]) ? ' is-err' : '');
@@ -29,10 +30,7 @@ $aria = static fn (string $k) => isset($errors[$k]) ? ' aria-invalid="true" aria
       </div>
       <div class="<?= $cls('profession') ?>">
         <label for="profession"><?= e(t('Profesi / Pekerjaan')) ?><span class="req">*</span></label>
-        <select class="inp" id="profession" name="profession" required<?= $aria('profession') ?>>
-          <option value=""><?= e(t('Pilih profesi')) ?></option>
-          <?php foreach (Participant::PROFESSIONS as $o): ?><option value="<?= e($o) ?>"<?= selected($old['profession'] ?? '', $o) ?>><?= e(t($o)) ?></option><?php endforeach; ?>
-        </select>
+        <?= \App\Core\View::partial('option_select', ['name' => 'profession', 'groups' => ParticipantOptions::PROFESSIONS, 'value' => $old['profession'] ?? '', 'placeholder' => t('Pilih profesi'), 'required' => true, 'aria' => $aria('profession'), 'otherLabel' => t('Tulis profesi atau pekerjaan Anda'), 'max' => ParticipantOptions::PROFESSION_MAX]) ?>
         <?= field_error($errors, 'profession') ?>
       </div>
       <div class="<?= $cls('full_name') ?>">
@@ -53,10 +51,7 @@ $aria = static fn (string $k) => isset($errors[$k]) ? ' aria-invalid="true" aria
       </div>
       <div class="<?= $cls('field_of_study') ?>">
         <label for="field_of_study"><?= e(t('Program Studi / Bidang Studi')) ?><span class="req">*</span></label>
-        <select class="inp" id="field_of_study" name="field_of_study" required<?= $aria('field_of_study') ?>>
-          <option value=""><?= e(t('Pilih program studi')) ?></option>
-          <?php foreach (Participant::FIELDS as $o): ?><option value="<?= e($o) ?>"<?= selected($old['field_of_study'] ?? '', $o) ?>><?= e(t($o)) ?></option><?php endforeach; ?>
-        </select>
+        <?= \App\Core\View::partial('option_select', ['name' => 'field_of_study', 'groups' => ParticipantOptions::FIELDS, 'value' => $old['field_of_study'] ?? '', 'placeholder' => t('Pilih program studi'), 'required' => true, 'aria' => $aria('field_of_study'), 'otherLabel' => t('Tulis program studi atau bidang studi Anda'), 'max' => ParticipantOptions::FIELD_MAX]) ?>
         <?= field_error($errors, 'field_of_study') ?>
       </div>
     </div>

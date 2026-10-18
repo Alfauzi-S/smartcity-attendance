@@ -185,4 +185,16 @@
     });
     f.querySelector('[data-prev]').addEventListener('click', function () { s2.hidden = true; s1.hidden = false; });
   });
+
+  /* ---------- pilihan "Lainnya (tulis sendiri)" ---------- */
+  $$('select[data-other]').forEach(function (s) {
+    var wrap = document.getElementById(s.getAttribute('data-other') + '_wrap');
+    var inp = document.getElementById(s.getAttribute('data-other'));
+    if (!wrap || !inp) return;
+    s.addEventListener('change', function () {
+      var on = s.value === 'Lainnya';
+      wrap.hidden = !on;
+      if (on) inp.focus(); else inp.value = '';
+    });
+  });
 })();

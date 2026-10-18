@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\RateLimiter;
 use App\Models\Event;
 use App\Models\Participant;
+use App\Models\ParticipantOptions;
 use App\Models\User;
 use App\Services\Validator;
 use PDOException;
@@ -70,11 +71,11 @@ final class PublicController extends Controller
         }
         $data = [
             'identity_number' => preg_replace('/\s+/', '', input('identity_number')) ?? '',
-            'profession' => input('profession'),
+            'profession' => ParticipantOptions::pick(input('profession'), input('profession_other')),
             'full_name' => preg_replace('/\s+/', ' ', input('full_name')) ?? '',
             'phone' => Validator::normalizePhone(input('phone')),
             'institution' => input('institution'),
-            'field_of_study' => input('field_of_study'),
+            'field_of_study' => ParticipantOptions::pick(input('field_of_study'), input('field_of_study_other')),
         ];
         $key = 'reg:' . client_ip();
         $errors = [];
