@@ -7,8 +7,6 @@ Built with **PHP 8.1+ (OOP, no framework)** and **MySQL/MariaDB** (or SQLite for
 
 **User manual (Indonesian, PDF, with screenshots):** [Manual-Book-SmartCity-Attendance.pdf](Manual-Book-SmartCity-Attendance.pdf)
 
-> Final project for the Object-Oriented Programming (PBO) course, Informatics (S1), Universitas Mulawarman.
-
 ---
 
 ## Contents
