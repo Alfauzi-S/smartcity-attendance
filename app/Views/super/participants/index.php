@@ -8,6 +8,6 @@
   </div>
   <?= View::partial('event_picker', ['events' => $events, 'event' => $event, 'path' => 'admin/peserta']) ?>
   <?= View::partial('filters', ['path' => 'admin/peserta', 'q' => $q, 'st' => $st, 'stats' => $stats]) ?>
-  <?= View::partial('participant_list', ['list' => $list, 'base' => 'admin/peserta/', 'q' => $q, 'st' => $st, 'super' => true]) ?>
+  <?= View::partial('participant_list', ['list' => $list, 'base' => 'admin/peserta/', 'q' => $q, 'st' => $st, 'super' => $canStatus]) ?>
   <?= View::partial('pager', ['page' => $page, 'pages' => $pages, 'total' => $total, 'path' => 'admin/peserta', 'query' => ['q' => $q, 'st' => $st]]) ?>
 <?php endif; ?>

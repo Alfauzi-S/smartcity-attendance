@@ -12,7 +12,7 @@ $preset = in_array($openStatus, ['hadir', 'tidak'], true) ? $openStatus : '';
   <div class="card-h"><h3><?= e(t('Status kehadiran')) ?></h3><?= status_badge($p['status']) ?></div>
   <p class="small muted"><?= e(t('Ubah status secara manual bila peserta hadir tetapi QR tidak bisa dipindai, atau untuk menetapkan Tidak Hadir setelah absensi ditutup. Setiap perubahan tercatat di riwayat.')) ?></p>
   <div class="row">
-    <button type="button" class="btn btn-primary" data-open="status-dialog"><?= icon('edit', 18) ?><?= e(t('Ubah status')) ?></button>
+    <?php if ($canStatus): ?><button type="button" class="btn btn-primary" data-open="status-dialog"><?= icon('edit', 18) ?><?= e(t('Ubah status')) ?></button><?php endif; ?>
     <a class="btn btn-ghost" href="<?= e(url($base, ['ubah' => 'data'])) ?>#edit"><?= icon('user', 18) ?><?= e(t('Ubah data peserta')) ?></a>
   </div>
 </div>
@@ -38,6 +38,7 @@ $preset = in_array($openStatus, ['hadir', 'tidak'], true) ? $openStatus : '';
   <?= View::partial('history_items', ['items' => $history]) ?>
 </div>
 
+<?php if ($canStatus): ?>
 <div class="ov" id="status-dialog" role="dialog" aria-modal="true" aria-labelledby="sd-title"<?= $openStatus === '' ? ' hidden' : '' ?>>
   <form method="post" action="<?= e(url($base . '/status')) ?>" class="sheet" data-status-form data-current="<?= e($p['status']) ?>">
     <?= csrf_field() ?>
@@ -65,4 +66,5 @@ $preset = in_array($openStatus, ['hadir', 'tidak'], true) ? $openStatus : '';
     </div>
   </form>
 </div>
+<?php endif; ?>
 <template id="tpl-badges"><span data-b="hadir"><?= status_badge('hadir', true) ?></span><span data-b="tidak"><?= status_badge('tidak', true) ?></span></template>

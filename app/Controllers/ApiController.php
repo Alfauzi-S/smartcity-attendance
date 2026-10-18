@@ -12,9 +12,10 @@ final class ApiController extends Controller
 {
     private function context(array $body): array
     {
-        $user = Auth::require(Auth::ADMIN, Auth::SUPER);
+        $user = Auth::require(Auth::ADMIN, Auth::SUPER, Auth::EVENT);
         $requested = isset($body['event_id']) ? (int) $body['event_id'] : null;
-        $event = $this->currentEvent($user, $user['role'] === Auth::SUPER ? $requested : null);
+        // event_id dari browser hanya dipakai setelah dicek terhadap assignment (lihat currentEvent)
+        $event = $this->currentEvent($user, $user['role'] !== Auth::ADMIN ? $requested : null, 'attendance');
         if (!$event) {
             json_out(['ok' => false, 'state' => 'noevent', 'message' => t('Akun ini belum ditugaskan ke event.')], 409);
         }

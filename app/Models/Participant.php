@@ -133,6 +133,6 @@ final class Participant
 
     public static function methodLabel(?string $method): string
     {
-        return t(['scan' => 'Scan QR', 'cari' => 'Input manual petugas', 'manual' => 'Diubah manual oleh Super Admin'][$method ?? ''] ?? '—');
+        return t(['scan' => 'Scan QR', 'cari' => 'Input manual petugas', 'manual' => 'Diubah manual oleh admin'][$method ?? ''] ?? '—');
     }
 }

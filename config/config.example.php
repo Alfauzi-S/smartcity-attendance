@@ -41,4 +41,12 @@ return [
 
     // Kontak panitia yang tampil di halaman event (opsional)
     'contact_phone' => '',
+
+    // Sertifikat otomatis
+    'cert' => [
+        'max_upload_mb' => 8,        // batas ukuran desain/logo yang diunggah (juga cek upload_max_filesize PHP)
+        'batch_size' => 10,          // jumlah sertifikat per langkah generate massal
+        'search_per_10min' => 30,    // batas pencarian sertifikat publik per IP
+        'download_fail_per_15min' => 8, // batas salah verifikasi unduhan per IP
+    ],
 ];

@@ -64,7 +64,7 @@
       e.preventDefault();
       pending = f;
       $('#confirm-text').textContent = f.getAttribute('data-confirm');
-      var danger = /hapus|nonaktif|tutup|delete|deactivate|close/i.test(f.getAttribute('data-confirm'));
+      var danger = /hapus|nonaktif|tutup|cabut|arsip|delete|deactivate|close|revoke|archive/i.test(f.getAttribute('data-confirm'));
       $('#confirm-ok').className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
       openDialog($('#confirm-dialog'));
       return;
@@ -113,6 +113,10 @@
 
   /* ---------- submit otomatis ---------- */
   $$('form[data-autosubmit] select').forEach(function (s) { s.addEventListener('change', function () { s.form.submit(); }); });
+  document.addEventListener('change', function (e) {
+    var all = e.target.closest('[data-check-all]');
+    if (all) { $$('input[name="ids[]"]', all.closest('form')).forEach(function (c) { c.checked = all.checked; }); }
+  });
   $$('select[data-autosubmit-field]').forEach(function (s) { s.addEventListener('change', function () { s.form.submit(); }); });
   $$('select[data-report-filter]').forEach(function (s) {
     s.addEventListener('change', function () { location.href = s.getAttribute('data-report-filter') + '?st=' + encodeURIComponent(s.value); });

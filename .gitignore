@@ -2,3 +2,5 @@
 /storage/*.sqlite
 /storage/*.sqlite-*
 /storage/logs/*.log
+/storage/cert/
+/storage/certificates/

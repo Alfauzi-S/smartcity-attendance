@@ -9,6 +9,7 @@
     <?= logo_mark(34) ?>
     <a class="t" href="<?= e(url()) ?>">SmartCity Attendance<small><?= e(t('Registrasi & absensi event')) ?></small></a>
     <?= \App\Core\View::partial('lang_switch') ?>
+    <a class="btn btn-ghost sm" href="<?= e(url('sertifikat')) ?>"><?= icon('award', 16) ?><span class="hide-n"><?= e(t('Cari Sertifikat')) ?></span></a>
     <a class="btn btn-ghost sm" href="<?= e(url('masuk')) ?>"><?= icon('lock', 16) ?><span class="hide-n"><?= e(t('Masuk panitia')) ?></span></a>
   </header>
   <main class="public-main" id="main"><?= $content ?></main>

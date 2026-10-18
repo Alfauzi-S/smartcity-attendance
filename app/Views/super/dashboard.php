@@ -1,4 +1,8 @@
 <?php use App\Core\View; ?>
+<?php if (!empty($pendingMigrations)): ?>
+  <div class="banner warn" role="status"><?= icon('alert') ?><div class="grow"><b><?= e(t('Pembaruan database tersedia')) ?></b><?= e(t('Migrasi aditif untuk role Admin Event dan sertifikat belum dijalankan (:list). Data lama tidak diubah atau dihapus. Cadangkan database terlebih dahulu.', ['list' => implode(', ', $pendingMigrations)])) ?></div>
+    <?= post_button('admin/migrasi', t('Jalankan migrasi'), [], 'btn btn-primary sm', t('Jalankan migrasi database sekarang? Pastikan database sudah dicadangkan.'), 'refresh') ?></div>
+<?php endif; ?>
 <?php if (!$event): ?>
   <?= View::partial('no_event', ['heading' => t('Selamat datang di SmartCity Attendance'), 'text' => t('Mulai dengan membuat event pertama. Setelah itu bagikan tautan registrasi dan buat akun Admin Absensi.'), 'cta' => ['admin/event/baru', t('Buat event')]]) ?>
 <?php else:

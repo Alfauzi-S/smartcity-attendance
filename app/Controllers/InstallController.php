@@ -5,7 +5,9 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Database as DB;
+use App\Core\Migrator;
 use App\Models\User;
+use App\Services\CertDemoSeeder;
 use App\Services\DemoSeeder;
 use Throwable;
 
@@ -41,6 +43,8 @@ final class InstallController extends Controller
             [t('Ekstensi PDO :driver', ['driver' => DB::driver()]), extension_loaded('pdo_' . DB::driver()), ''],
             ['Ekstensi mbstring', extension_loaded('mbstring'), ''],
             ['Ekstensi zip (untuk ekspor Excel)', class_exists(\ZipArchive::class), 'Opsional; tanpa ini ekspor tetap bisa CSV'],
+            ['Ekstensi GD (untuk sertifikat)', extension_loaded('gd'), 'Dibutuhkan untuk mengunggah gambar desain, logo, tanda tangan, dan stempel'],
+            ['Library PDF (vendor/)', is_file(ROOT_PATH . '/vendor/tecnickcom/tcpdf/tcpdf.php'), 'TCPDF dan FPDI disertakan di folder vendor'],
             ['Folder storage dapat ditulis', is_writable(STORAGE_PATH), STORAGE_PATH],
             ['Koneksi database', $dbOk, $dbOk ? (string) config('db.driver') : $dbError],
         ];
@@ -72,14 +76,25 @@ final class InstallController extends Controller
         if (!$errors) {
             try {
                 DB::runFile(ROOT_PATH . '/database/schema.' . (DB::driver() === 'sqlite' ? 'sqlite' : 'mysql') . '.sql');
+                Migrator::run();
                 if (User::hasSuper()) {
                     abort(404, 'Halaman tidak ditemukan');
                 }
                 $id = User::create(['name' => $old['name'], 'username' => $old['username'], 'password' => $password, 'role' => Auth::SUPER, 'event_id' => null]);
                 $super = User::find($id);
                 $demo = $old['demo'] === '1' ? DemoSeeder::run($super) : [];
+                $certDemo = null;
+                if ($old['demo'] === '1') {
+                    // Demo Admin Event & sertifikat bersifat tambahan: bila gagal (mis. GD tidak aktif), instalasi tetap selesai
+                    try {
+                        $certDemo = CertDemoSeeder::run($super, (int) DB::value('SELECT MIN(id) FROM events'));
+                    } catch (Throwable $e) {
+                        error_log((string) $e);
+                        $certDemo = ['account' => null, 'event' => '', 'sample' => null, 'error' => true];
+                    }
+                }
                 Auth::login($super);
-                $this->render('install/done', ['title' => t('Instalasi selesai'), 'demo' => $demo, 'username' => $old['username']], 'bare');
+                $this->render('install/done', ['title' => t('Instalasi selesai'), 'demo' => $demo, 'certDemo' => $certDemo, 'username' => $old['username']], 'bare');
                 return;
             } catch (Throwable $e) {
                 error_log((string) $e);

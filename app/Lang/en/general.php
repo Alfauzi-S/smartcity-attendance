@@ -244,7 +244,7 @@ return [
     'Akun Super Admin' => 'Super Admin Account',
     'Nama' => 'Name',
     'Ulangi password' => 'Repeat password',
-    'Isi data demo (1 event, 156 peserta, 2 Admin Absensi)' => 'Load demo data (1 event, 156 participants, 2 Attendance Admins)',
+    'Isi data demo (2 event, 196 peserta, 2 Admin Absensi, 1 Admin Event, contoh sertifikat)' => 'Load demo data (2 events, 196 participants, 2 Attendance Admins, 1 Event Admin, sample certificates)',
     'Data demo cocok untuk uji coba. Untuk produksi, biarkan tidak dicentang.' => 'Demo data is good for testing. For production, leave this unchecked.',
     'Pasang sekarang' => 'Install now',
     'Anda sudah masuk sebagai' => 'You are signed in as',

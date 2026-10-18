@@ -10,13 +10,13 @@ final class SettingsController extends Controller
 {
     public function index(): void
     {
-        Auth::require(Auth::SUPER);
-        $this->render('super/settings', ['title' => t('Pengaturan Akun'), 'active' => 'settings']);
+        $user = $this->manager();
+        $this->render('super/settings', ['title' => t('Pengaturan Akun'), 'active' => 'settings', 'assignments' => $user['role'] === Auth::EVENT ? \App\Models\Assignment::forUser((int) $user['id']) : []]);
     }
 
     public function profile(): void
     {
-        $user = Auth::require(Auth::SUPER);
+        $user = $this->manager();
         $name = input('name');
         if (mb_strlen($name) < 3) {
             flash('bad', 'Nama minimal 3 karakter');
@@ -29,7 +29,7 @@ final class SettingsController extends Controller
 
     public function password(): void
     {
-        $user = Auth::require(Auth::SUPER);
+        $user = $this->manager();
         $this->changeOwnPassword($user, 'admin/pengaturan');
     }
 }

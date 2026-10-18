@@ -109,16 +109,25 @@ final class Database
         }
     }
 
+    /** @var array<string, true> tabel yang sudah dipastikan ada (hanya hasil positif yang disimpan) */
+    private static array $tables = [];
+
     public static function tableExists(string $table): bool
     {
+        if (isset(self::$tables[$table])) {
+            return true;
+        }
         try {
-            if (self::driver() === 'sqlite') {
-                return (bool) self::value("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [$table]);
-            }
-            return (bool) self::value('SHOW TABLES LIKE ' . self::pdo()->quote($table));
+            $found = self::driver() === 'sqlite'
+                ? (bool) self::value("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [$table])
+                : (bool) self::value('SHOW TABLES LIKE ' . self::pdo()->quote($table));
         } catch (Throwable) {
             return false;
         }
+        if ($found) {
+            self::$tables[$table] = true;
+        }
+        return $found;
     }
 
     /** Menjalankan file .sql yang berisi beberapa perintah dipisah titik koma. */

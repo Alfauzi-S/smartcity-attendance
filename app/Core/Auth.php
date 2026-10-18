@@ -10,6 +10,10 @@ final class Auth
 {
     public const SUPER = 'super';
     public const ADMIN = 'admin';
+    /** Admin Event: mengelola event yang ditugaskan lewat tabel event_admin_assignments. */
+    public const EVENT = 'event';
+
+    public const ROLE_LABELS = [self::SUPER => 'Super Admin', self::EVENT => 'Admin Event', self::ADMIN => 'Admin Absensi'];
 
     private static ?array $user = null;
     private static bool $loaded = false;
@@ -47,6 +51,11 @@ final class Auth
         $_SESSION = [];
         session_regenerate_id(true);
         self::$user = null;
+    }
+
+    public static function roleLabel(?string $role): string
+    {
+        return t(self::ROLE_LABELS[$role ?? ''] ?? (string) $role);
     }
 
     public static function isSuper(): bool

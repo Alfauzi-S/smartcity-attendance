@@ -6,14 +6,16 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Database as DB;
 use App\Models\Event;
+use App\Models\AuditLog;
+use App\Services\Access;
 use App\Services\Validator;
 
 final class EventController extends Controller
 {
     public function index(): void
     {
-        Auth::require(Auth::SUPER);
-        $events = Event::all();
+        $user = $this->manager();
+        $events = Access::events($user);
         foreach ($events as &$e) {
             $e['stats'] = Event::stats((int) $e['id']);
         }
@@ -56,23 +58,21 @@ final class EventController extends Controller
             return;
         }
         $id = Event::create($d);
+        AuditLog::add(Auth::user(), 'event.create', $id, 'event', $id);
         flash('ok', 'Event berhasil dibuat', 'Bagikan tautan registrasi, lalu buat akun Admin Absensi.');
         redirect('admin/event/' . $id);
     }
 
-    private function findOr404(string $id): array
+    /** Event diambil dari database lalu dicek terhadap assignment pengguna (anti-IDOR). */
+    private function findOr404(string $id, array $user, ?string $perm): array
     {
-        $e = Event::find((int) $id);
-        if (!$e) {
-            abort(404, 'Event tidak ditemukan');
-        }
-        return $e;
+        return Access::requireEvent($user, (int) $id, $perm);
     }
 
     public function show(string $id): void
     {
-        Auth::require(Auth::SUPER);
-        $e = $this->findOr404($id);
+        $user = $this->manager();
+        $e = $this->findOr404($id, $user, null);
         $this->render('super/events/show', [
             'title' => t('Detail Event'),
             'active' => 'events',
@@ -80,20 +80,24 @@ final class EventController extends Controller
             'e' => $e,
             'stats' => Event::stats((int) $e['id']),
             'admins' => DB::all("SELECT * FROM users WHERE role = 'admin' AND event_id = ? ORDER BY name", [(int) $e['id']]),
+            'eventAdmins' => DB::tableExists('event_admin_assignments') ? DB::all(
+                'SELECT u.*, a.permissions FROM event_admin_assignments a JOIN users u ON u.id = a.user_id WHERE a.event_id = ? ORDER BY u.name',
+                [(int) $e['id']]
+            ) : [],
         ]);
     }
 
     public function edit(string $id): void
     {
-        Auth::require(Auth::SUPER);
-        $e = $this->findOr404($id);
+        $user = $this->manager();
+        $e = $this->findOr404($id, $user, 'event_edit');
         $this->render('super/events/form', ['title' => t('Ubah Event'), 'active' => 'events', 'back' => 'admin/event/' . $e['id'], 'e' => $e, 'errors' => [], 'editId' => (int) $e['id']]);
     }
 
     public function update(string $id): void
     {
-        Auth::require(Auth::SUPER);
-        $e = $this->findOr404($id);
+        $user = $this->manager();
+        $e = $this->findOr404($id, $user, 'event_edit');
         $d = $this->formData();
         $errors = Validator::event($d);
         if ($errors) {
@@ -102,17 +106,20 @@ final class EventController extends Controller
             return;
         }
         Event::update((int) $e['id'], $d);
+        $changed = array_keys(array_filter($d, static fn ($v, $k) => (string) $v !== (string) ($e[$k] ?? ''), ARRAY_FILTER_USE_BOTH));
+        AuditLog::add($user, 'event.update', (int) $e['id'], 'event', $e['id'], ['fields' => $changed]);
         flash('ok', 'Perubahan event disimpan');
         redirect('admin/event/' . $e['id']);
     }
 
     public function setting(string $id): void
     {
-        Auth::require(Auth::SUPER);
-        $e = $this->findOr404($id);
+        $user = $this->manager();
+        $e = $this->findOr404($id, $user, 'event_edit');
         $field = input('field');
         $value = input('value');
         if (Event::setSetting((int) $e['id'], $field, $value)) {
+            AuditLog::add($user, 'event.setting', (int) $e['id'], 'event', $e['id'], ['field' => $field, 'old' => $e[$field] ?? null, 'new' => $value]);
             $messages = [
                 'reg_status' => ['Dibuka' => 'Registrasi dibuka', 'Ditutup' => 'Registrasi ditutup'],
                 'att_status' => ['open' => 'Absensi dibuka', 'notyet' => 'Absensi belum dibuka', 'closed' => 'Absensi ditutup'],
@@ -129,13 +136,15 @@ final class EventController extends Controller
 
     public function destroy(string $id): void
     {
-        Auth::require(Auth::SUPER);
-        $e = $this->findOr404($id);
-        if (Event::participantCount((int) $e['id']) > 0) {
+        $user = Auth::require(Auth::SUPER);
+        $e = $this->findOr404($id, $user, null);
+        $hasCert = DB::tableExists('cert_templates') && (int) DB::value('SELECT COUNT(*) FROM cert_templates WHERE event_id = ?', [(int) $e['id']]) > 0;
+        if (Event::participantCount((int) $e['id']) > 0 || $hasCert) {
             flash('bad', 'Event tidak dapat dihapus', 'Event ini sudah memiliki peserta. Ubah status menjadi Ditutup untuk mengarsipkan.');
             redirect('admin/event/' . $e['id']);
         }
         Event::delete((int) $e['id']);
+        AuditLog::add($user, 'event.delete', null, 'event', $e['id'], ['name' => $e['name']]);
         unset($_SESSION['ev']);
         flash('ok', 'Event dihapus');
         redirect('admin/event');

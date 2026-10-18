@@ -2,11 +2,16 @@
 use App\Core\View;
 
 $regLink = full_url('e/' . $e['slug']);
+$canEdit = can('event_edit', (int) $e['id']);
 $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['closed', t('Tutup absensi'), 'btn-danger'], 'closed' => ['open', t('Buka kembali absensi'), 'btn-outline']][$e['att_status']];
 ?>
 <div class="pagehead">
   <div><h2><?= e($e['name']) ?></h2><p><?= e(date_id($e['event_date'], true)) ?> · <?= e($e['start_time']) ?>–<?= e($e['end_time']) ?> <?= e(config('timezone_label', 'WITA')) ?></p></div>
-  <div class="row"><a class="btn btn-outline sm" href="<?= e(url('admin/event/' . $e['id'] . '/ubah')) ?>"><?= icon('edit', 16) ?><?= e(t('Ubah')) ?></a><a class="btn btn-outline sm" href="<?= e(url('admin/peserta', ['ev' => $e['id']])) ?>"><?= icon('users', 16) ?><?= e(t('Peserta')) ?></a></div>
+  <div class="row">
+    <?php if ($canEdit): ?><a class="btn btn-outline sm" href="<?= e(url('admin/event/' . $e['id'] . '/ubah')) ?>"><?= icon('edit', 16) ?><?= e(t('Ubah')) ?></a><?php endif; ?>
+    <?php if (can('participants', (int) $e['id'])): ?><a class="btn btn-outline sm" href="<?= e(url('admin/peserta', ['ev' => $e['id']])) ?>"><?= icon('users', 16) ?><?= e(t('Peserta')) ?></a><?php endif; ?>
+    <?php if (can('cert_manage', (int) $e['id']) || can('cert_publish', (int) $e['id'])): ?><a class="btn btn-outline sm" href="<?= e(url('admin/sertifikat', ['ev' => $e['id']])) ?>"><?= icon('award', 16) ?><?= e(t('Sertifikat')) ?></a><?php endif; ?>
+  </div>
 </div>
 <div class="row"><?= event_badge($e['status']) ?><?= reg_badge($e['reg_status']) ?><?= att_badge($e['att_status']) ?></div>
 <?= View::partial('stats', ['stats' => $stats]) ?>
@@ -17,6 +22,7 @@ $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['
     <?php if ($e['status'] !== 'Aktif'): ?><p class="hint small" style="color:var(--warn-ink)"><?= e(t('Event berstatus :status. Ubah ke Aktif agar peserta dapat mendaftar.', ['status' => t($e['status'])])) ?></p><?php endif; ?>
     <a class="btn btn-ghost sm" href="<?= e($regLink) ?>" target="_blank" rel="noopener"><?= icon('eye', 16) ?><?= e(t('Lihat halaman publik')) ?></a>
   </div>
+  <?php if ($canEdit): ?>
   <div class="card">
     <div class="card-h"><h3><?= e(t('Kendali cepat')) ?></h3></div>
     <div class="kv">
@@ -28,6 +34,7 @@ $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['
           <button class="btn btn-outline sm"><?= e(t('Simpan')) ?></button></form></span></div>
     </div>
   </div>
+  <?php endif; ?>
 </div>
 <div class="g-2 even">
   <div class="card">
@@ -41,16 +48,24 @@ $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['
     <?php if ($e['description']): ?><p class="small" style="color:var(--ink2)"><?= nl2br(e($e['description'])) ?></p><?php endif; ?>
   </div>
   <div class="card">
-    <div class="card-h"><h3><?= e(t('Admin Absensi bertugas')) ?></h3><a class="btn btn-ghost sm" href="<?= e(url('admin/akun/baru', ['ev' => $e['id']])) ?>"><?= icon('userplus', 16) ?><?= e(t('Tambah')) ?></a></div>
+    <div class="card-h"><h3><?= e(t('Admin Absensi bertugas')) ?></h3><?php if (is_super()): ?><a class="btn btn-ghost sm" href="<?= e(url('admin/akun/baru', ['ev' => $e['id']])) ?>"><?= icon('userplus', 16) ?><?= e(t('Tambah')) ?></a><?php endif; ?></div>
     <?php if (!$admins): ?><p class="muted small"><?= e(t('Belum ada Admin Absensi untuk event ini.')) ?></p><?php else: ?>
       <div class="list"><?php foreach ($admins as $a): ?>
-        <a class="pc" href="<?= e(url('admin/akun/' . $a['id'])) ?>"><span class="av t"><?= e(initials($a['name'])) ?></span><span class="who"><b><?= e($a['name']) ?></b><span>@<?= e($a['username']) ?></span></span><span class="bdg <?= $a['status'] === 'Aktif' ? 'bdg-ok' : 'bdg-mute' ?>"><?= e(t($a['status'])) ?></span></a>
+        <a class="pc" href="<?= e(is_super() ? url('admin/akun/' . $a['id']) : '#') ?>"><span class="av t"><?= e(initials($a['name'])) ?></span><span class="who"><b><?= e($a['name']) ?></b><span>@<?= e($a['username']) ?></span></span><span class="bdg <?= $a['status'] === 'Aktif' ? 'bdg-ok' : 'bdg-mute' ?>"><?= e(t($a['status'])) ?></span></a>
+      <?php endforeach; ?></div>
+    <?php endif; ?>
+    <div class="card-h"><h3><?= e(t('Admin Event')) ?></h3><?php if (is_super()): ?><a class="btn btn-ghost sm" href="<?= e(url('admin/akun/baru', ['ev' => $e['id'], 'peran' => 'event'])) ?>"><?= icon('userplus', 16) ?><?= e(t('Tambah')) ?></a><?php endif; ?></div>
+    <?php if (!$eventAdmins): ?><p class="muted small"><?= e(t('Belum ada Admin Event untuk event ini.')) ?></p><?php else: ?>
+      <div class="list"><?php foreach ($eventAdmins as $a): ?>
+        <a class="pc" href="<?= e(is_super() ? url('admin/akun/' . $a['id'], []) . '#penugasan' : '#') ?>"><span class="av"><?= e(initials($a['name'])) ?></span><span class="who"><b><?= e($a['name']) ?></b><span>@<?= e($a['username']) ?> · <?= e(t(':n izin', ['n' => count(\App\Services\Access::decode($a['permissions']))])) ?></span></span><span class="bdg <?= $a['status'] === 'Aktif' ? 'bdg-ok' : 'bdg-mute' ?>"><?= e(t($a['status'])) ?></span></a>
       <?php endforeach; ?></div>
     <?php endif; ?>
   </div>
 </div>
+<?php if (is_super()): ?>
 <div class="card">
   <div class="card-h"><h3><?= e(t('Hapus event')) ?></h3></div>
   <p class="small muted"><?= e(t('Hanya event tanpa peserta yang bisa dihapus. Event yang sudah berjalan sebaiknya diubah menjadi Ditutup atau Selesai.')) ?></p>
   <div><?= post_button('admin/event/' . $e['id'] . '/hapus', t('Hapus event'), [], 'btn btn-danger sm', t('Hapus event ":name"? Tindakan ini tidak dapat dibatalkan.', ['name' => $e['name']]), 'trash') ?></div>
 </div>
+<?php endif; ?>

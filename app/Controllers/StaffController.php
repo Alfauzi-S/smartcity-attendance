@@ -7,6 +7,7 @@ use App\Core\Auth;
 use App\Models\Event;
 use App\Models\Participant;
 use App\Models\User;
+use App\Services\Access;
 
 /** Halaman Admin Absensi. Super Admin juga boleh memakai scanner. */
 final class StaffController extends Controller
@@ -15,8 +16,8 @@ final class StaffController extends Controller
 
     public function dashboard(): void
     {
-        $user = Auth::require(Auth::ADMIN, Auth::SUPER);
-        if ($user['role'] === Auth::SUPER) {
+        $user = Auth::require(Auth::ADMIN, Auth::SUPER, Auth::EVENT);
+        if ($user['role'] !== Auth::ADMIN) {
             redirect('admin');
         }
         $event = $this->currentEvent($user);
@@ -32,19 +33,22 @@ final class StaffController extends Controller
 
     public function scan(): void
     {
-        $user = Auth::require(Auth::ADMIN, Auth::SUPER);
-        $event = $this->currentEvent($user);
+        $user = Auth::require(Auth::ADMIN, Auth::SUPER, Auth::EVENT);
+        $event = $this->currentEvent($user, null, 'attendance');
         $this->render('staff/scan', [
             'title' => t('Scan QR'),
             'active' => 'scan',
             'event' => $event,
-            'events' => $user['role'] === Auth::SUPER ? Event::all() : [],
+            'events' => $user['role'] !== Auth::ADMIN ? Access::events($user, 'attendance') : [],
         ]);
     }
 
     public function participants(): void
     {
-        $user = Auth::require(Auth::ADMIN, Auth::SUPER);
+        $user = Auth::require(Auth::ADMIN, Auth::SUPER, Auth::EVENT);
+        if ($user['role'] === Auth::EVENT) {
+            redirect('admin/peserta');
+        }
         $event = $this->currentEvent($user);
         $q = query('q');
         $st = query('st', 'all');
@@ -66,8 +70,8 @@ final class StaffController extends Controller
 
     public function participant(string $id): void
     {
-        $user = Auth::require(Auth::ADMIN, Auth::SUPER);
-        if ($user['role'] === Auth::SUPER) {
+        $user = Auth::require(Auth::ADMIN, Auth::SUPER, Auth::EVENT);
+        if ($user['role'] !== Auth::ADMIN) {
             redirect('admin/peserta/' . (int) $id);
         }
         $p = Participant::find((int) $id);
@@ -85,8 +89,8 @@ final class StaffController extends Controller
 
     public function profile(): void
     {
-        $user = Auth::require(Auth::ADMIN, Auth::SUPER);
-        if ($user['role'] === Auth::SUPER) {
+        $user = Auth::require(Auth::ADMIN, Auth::SUPER, Auth::EVENT);
+        if ($user['role'] !== Auth::ADMIN) {
             redirect('admin/pengaturan');
         }
         $this->render('staff/profile', [

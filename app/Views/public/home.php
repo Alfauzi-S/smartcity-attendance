@@ -3,6 +3,7 @@
     <span class="bdg bdg-info" style="justify-self:start">Smart City · Smart Campus</span>
     <h1><?= e(t('Daftar event, simpan QR, hadir tanpa antre.')) ?></h1>
     <p><?= e(t('Pilih event di bawah untuk melihat jadwal dan melakukan registrasi. QR Code dikirim langsung di halaman setelah Anda mendaftar.')) ?></p>
+    <div class="row"><a class="btn btn-ondark sm" href="<?= e(url('sertifikat')) ?>"><?= icon('award', 16) ?><?= e(t('Cari sertifikat Anda')) ?></a></div>
     <img class="art" src="<?= e(asset('img/city.svg')) ?>" alt="">
   </div>
 </section>

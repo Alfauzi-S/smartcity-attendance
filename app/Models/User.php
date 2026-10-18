@@ -22,14 +22,19 @@ final class User
         return (bool) DB::value("SELECT id FROM users WHERE role = 'super' LIMIT 1");
     }
 
-    /** Daftar akun Admin Absensi beserta event dan jumlah scan. */
-    public static function admins(): array
+    /** Daftar akun Admin Absensi dan Admin Event beserta event dan jumlah scan. */
+    public static function admins(?string $role = null): array
     {
+        $assign = DB::tableExists('event_admin_assignments')
+            ? '(SELECT COUNT(*) FROM event_admin_assignments a WHERE a.user_id = u.id)'
+            : '0';
+        $roles = $role !== null ? [$role] : ['admin', 'event'];
         return DB::all(
-            "SELECT u.*, e.name AS event_name,
+            "SELECT u.*, e.name AS event_name, {$assign} AS assignment_count,
                 (SELECT COUNT(*) FROM participants p WHERE p.checked_in_by = u.id AND p.method IN ('scan', 'cari')) AS scan_count
              FROM users u LEFT JOIN events e ON e.id = u.event_id
-             WHERE u.role = 'admin' ORDER BY u.status ASC, u.name ASC"
+             WHERE u.role IN (" . implode(',', array_fill(0, count($roles), '?')) . ') ORDER BY u.status ASC, u.role ASC, u.name ASC',
+            $roles
         );
     }
 

@@ -9,8 +9,11 @@ if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_U
 require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Controllers\AccountController;
+use App\Controllers\AuditController;
 use App\Controllers\ApiController;
 use App\Controllers\AuthController;
+use App\Controllers\CertificateController;
+use App\Controllers\CertPublicController;
 use App\Controllers\DashboardController;
 use App\Controllers\EventController;
 use App\Controllers\InstallController;
@@ -34,6 +37,11 @@ $r->get('/e/{slug}/daftar', [PublicController::class, 'registerForm']);
 $r->post('/e/{slug}/daftar', [PublicController::class, 'register']);
 $r->get('/t/{code}', [PublicController::class, 'ticket']);
 
+// Sertifikat publik: cari, unduh (perlu konfirmasi), verifikasi QR
+$r->get('/sertifikat', [CertPublicController::class, 'search']);
+$r->post('/sertifikat/unduh', [CertPublicController::class, 'download']);
+$r->get('/v/{token}', [CertPublicController::class, 'verify']);
+
 // Login
 $r->get('/masuk', [AuthController::class, 'form']);
 $r->post('/masuk', [AuthController::class, 'login']);
@@ -52,6 +60,8 @@ $r->post('/api/scan/search', [ApiController::class, 'search']);
 
 // Super Admin
 $r->get('/admin', [DashboardController::class, 'index']);
+$r->post('/admin/migrasi', [DashboardController::class, 'migrate']);
+$r->get('/admin/audit', [AuditController::class, 'index']);
 $r->get('/admin/event', [EventController::class, 'index']);
 $r->get('/admin/event/baru', [EventController::class, 'create']);
 $r->post('/admin/event/baru', [EventController::class, 'store']);
@@ -64,6 +74,8 @@ $r->get('/admin/akun', [AccountController::class, 'index']);
 $r->get('/admin/akun/baru', [AccountController::class, 'create']);
 $r->post('/admin/akun/baru', [AccountController::class, 'store']);
 $r->get('/admin/akun/{id}', [AccountController::class, 'show']);
+$r->post('/admin/akun/{id}/penugasan', [AccountController::class, 'assign']);
+$r->post('/admin/akun/{id}/penugasan/{event}/hapus', [AccountController::class, 'unassign']);
 $r->post('/admin/akun/{id}/ubah', [AccountController::class, 'update']);
 $r->post('/admin/akun/{id}/status', [AccountController::class, 'toggle']);
 $r->post('/admin/akun/{id}/reset', [AccountController::class, 'reset']);
@@ -74,6 +86,47 @@ $r->post('/admin/peserta/{id}/status', [ParticipantController::class, 'status'])
 $r->get('/admin/riwayat', [ReportController::class, 'history']);
 $r->get('/admin/laporan', [ReportController::class, 'index']);
 $r->get('/admin/ekspor', [ReportController::class, 'export']);
+// Sertifikat (Super Admin + Admin Event sesuai izin). Rute spesifik harus di atas /admin/sertifikat/{id}.
+$c = CertificateController::class;
+$r->get('/admin/sertifikat', [$c, 'dashboard']);
+$r->get('/admin/sertifikat/template', [$c, 'templates']);
+$r->post('/admin/sertifikat/template/baru', [$c, 'templateCreate']);
+$r->get('/admin/sertifikat/template/{id}', [$c, 'editor']);
+$r->post('/admin/sertifikat/template/{id}/simpan', [$c, 'templateSave']);
+$r->post('/admin/sertifikat/template/{id}/latar', [$c, 'templateBackground']);
+$r->get('/admin/sertifikat/template/{id}/latar', [$c, 'templateBackgroundFile']);
+$r->post('/admin/sertifikat/template/{id}/ukuran', [$c, 'templateFit']);
+$r->post('/admin/sertifikat/template/{id}/status', [$c, 'templateStatus']);
+$r->get('/admin/sertifikat/template/{id}/pratinjau', [$c, 'templatePreview']);
+$r->get('/admin/sertifikat/aset', [$c, 'assets']);
+$r->post('/admin/sertifikat/aset/unggah', [$c, 'assetUpload']);
+$r->get('/admin/sertifikat/aset/{id}/gambar', [$c, 'assetImage']);
+$r->post('/admin/sertifikat/aset/{id}/setujui', [$c, 'assetApprove']);
+$r->post('/admin/sertifikat/aset/{id}/arsip', [$c, 'assetArchive']);
+$r->get('/admin/sertifikat/variabel', [$c, 'variables']);
+$r->post('/admin/sertifikat/variabel/simpan', [$c, 'variableSave']);
+$r->post('/admin/sertifikat/variabel/{id}/nilai', [$c, 'variableValue']);
+$r->get('/admin/sertifikat/nomor', [$c, 'numbering']);
+$r->post('/admin/sertifikat/nomor/baru', [$c, 'numberingCreate']);
+$r->post('/admin/sertifikat/nomor/{id}/setujui', [$c, 'numberingApprove']);
+$r->get('/admin/sertifikat/kelayakan', [$c, 'eligibility']);
+$r->post('/admin/sertifikat/kelayakan', [$c, 'eligibilitySave']);
+$r->get('/admin/sertifikat/generate', [$c, 'generatePage']);
+$r->post('/admin/sertifikat/generate', [$c, 'generateStart']);
+$r->post('/admin/sertifikat/peserta/{id}/generate', [$c, 'generateOne']);
+$r->get('/admin/sertifikat/job/{id}', [$c, 'job']);
+$r->post('/admin/sertifikat/job/{id}/step', [$c, 'jobStep']);
+$r->post('/admin/sertifikat/job/{id}/ulang', [$c, 'jobRetry']);
+$r->get('/admin/sertifikat/terbit', [$c, 'issued']);
+$r->post('/admin/sertifikat/terbit/publikasi', [$c, 'publishMany']);
+$r->get('/admin/sertifikat/zip', [$c, 'zip']);
+$r->get('/admin/sertifikat/riwayat', [$c, 'history']);
+$r->get('/admin/sertifikat/{id}', [$c, 'show']);
+$r->get('/admin/sertifikat/{id}/unduh', [$c, 'download']);
+$r->post('/admin/sertifikat/{id}/publikasi', [$c, 'publishOne']);
+$r->post('/admin/sertifikat/{id}/cabut', [$c, 'revoke']);
+$r->post('/admin/sertifikat/{id}/terbit-ulang', [$c, 'reissue']);
+
 $r->get('/admin/pengaturan', [SettingsController::class, 'index']);
 $r->post('/admin/pengaturan/profil', [SettingsController::class, 'profile']);
 $r->post('/admin/pengaturan/password', [SettingsController::class, 'password']);

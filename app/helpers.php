@@ -306,6 +306,24 @@ function initials(string $name): string
     return $out ?: '?';
 }
 
+/** Untuk menampilkan menu/tombol saja. Keamanan tetap diperiksa di controller. */
+function can(string $perm, ?int $eventId = null): bool
+{
+    $user = \App\Core\Auth::user();
+    if (!$user) {
+        return false;
+    }
+    if ($perm === 'cert_any' && $eventId === null) {
+        return \App\Services\Access::any($user, \App\Services\Access::CERT_ANY);
+    }
+    return $eventId === null ? \App\Services\Access::any($user, $perm) : \App\Services\Access::can($user, $eventId, $perm);
+}
+
+function is_super(): bool
+{
+    return \App\Core\Auth::isSuper();
+}
+
 function icon(string $name, int $size = 20): string
 {
     return View::icon($name, $size);

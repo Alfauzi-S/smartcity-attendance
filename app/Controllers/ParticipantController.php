@@ -8,6 +8,8 @@ use App\Models\Event;
 use App\Models\Participant;
 use App\Models\StatusHistory;
 use App\Services\AttendanceService;
+use App\Models\AuditLog;
+use App\Services\Access;
 use App\Services\Validator;
 
 /** Pengelolaan peserta oleh Super Admin, termasuk ubah status manual. */
@@ -17,8 +19,8 @@ final class ParticipantController extends Controller
 
     public function index(): void
     {
-        $user = Auth::require(Auth::SUPER);
-        $event = $this->currentEvent($user);
+        $user = $this->manager();
+        $event = $this->currentEvent($user, null, 'participants');
         $q = query('q');
         $st = query('st', 'all');
         $page = $this->page();
@@ -27,7 +29,8 @@ final class ParticipantController extends Controller
             'title' => t('Peserta'),
             'active' => 'participants',
             'event' => $event,
-            'events' => Event::all(),
+            'events' => Access::events($user, 'participants'),
+            'canStatus' => $event && Access::can($user, (int) $event['id'], 'status'),
             'stats' => $event ? Event::stats((int) $event['id']) : null,
             'list' => $event ? Participant::search((int) $event['id'], $q, $st, self::PER_PAGE, ($page - 1) * self::PER_PAGE) : [],
             'total' => $total,
@@ -38,19 +41,23 @@ final class ParticipantController extends Controller
         ]);
     }
 
-    private function findOr404(string $id): array
+    /** Peserta diambil dari database, lalu event miliknya dicek terhadap izin pengguna (anti-IDOR). */
+    private function findOr404(string $id, array $user, string $perm): array
     {
         $p = Participant::find((int) $id);
         if (!$p) {
             abort(404, 'Peserta tidak ditemukan');
+        }
+        if (!Access::can($user, (int) $p['event_id'], $perm)) {
+            Access::deny($user, (int) $p['event_id'], $perm);
         }
         return $p;
     }
 
     public function show(string $id): void
     {
-        Auth::require(Auth::SUPER);
-        $p = $this->findOr404($id);
+        $user = $this->manager();
+        $p = $this->findOr404($id, $user, 'participants');
         $this->render('super/participants/show', [
             'title' => t('Detail Peserta'),
             'active' => 'participants',
@@ -58,6 +65,7 @@ final class ParticipantController extends Controller
             'p' => $p,
             'event' => Event::find((int) $p['event_id']),
             'history' => StatusHistory::forParticipant((int) $p['id']),
+            'canStatus' => Access::can($user, (int) $p['event_id'], 'status'),
             'errors' => [],
             'editing' => query('ubah') === 'data',
             'openStatus' => in_array(query('status'), ['hadir', 'tidak'], true) ? query('status') : (query('ubah') === 'status' ? '1' : ''),
@@ -66,8 +74,8 @@ final class ParticipantController extends Controller
 
     public function update(string $id): void
     {
-        Auth::require(Auth::SUPER);
-        $p = $this->findOr404($id);
+        $user = $this->manager();
+        $p = $this->findOr404($id, $user, 'participants');
         $data = [
             'identity_number' => preg_replace('/\s+/', '', input('identity_number')) ?? '',
             'profession' => input('profession'),
@@ -83,23 +91,27 @@ final class ParticipantController extends Controller
                 'title' => t('Detail Peserta'), 'active' => 'participants', 'back' => 'admin/peserta',
                 'p' => $data + $p, 'event' => Event::find((int) $p['event_id']),
                 'history' => StatusHistory::forParticipant((int) $p['id']), 'errors' => $errors, 'editing' => true, 'openStatus' => '',
+                'canStatus' => Access::can($user, (int) $p['event_id'], 'status'),
             ]);
             return;
         }
         Participant::updateData((int) $p['id'], $data);
+        $changed = array_keys(array_filter($data, static fn ($v, $k) => (string) $v !== (string) $p[$k], ARRAY_FILTER_USE_BOTH));
+        AuditLog::add($user, 'participant.update', (int) $p['event_id'], 'participant', $p['id'], ['fields' => $changed]);
         flash('ok', 'Data peserta diperbarui', $data['full_name']);
         redirect('admin/peserta/' . $p['id']);
     }
 
     public function status(string $id): void
     {
-        $user = Auth::require(Auth::SUPER);
-        $p = $this->findOr404($id);
+        $user = $this->manager();
+        $p = $this->findOr404($id, $user, 'status');
         if (mb_strlen(input('reason')) < 3) {
             flash('bad', 'Perubahan gagal disimpan', 'Alasan perubahan wajib diisi (minimal 3 karakter).');
             redirect('admin/peserta/' . $p['id'], ['ubah' => 'status']);
         }
         $result = AttendanceService::changeStatus((int) $p['id'], input('new_status'), mb_substr(input('reason'), 0, 255), $user);
+        AuditLog::add($user, 'participant.status', (int) $p['event_id'], 'participant', $p['id'], ['new' => input('new_status')], $result['ok'] ? 'ok' : 'failed');
         if ($result['ok']) {
             flash('ok', 'Status berhasil diubah', t(':name: :message', ['name' => $p['full_name'], 'message' => t($result['message'])]));
         } else {

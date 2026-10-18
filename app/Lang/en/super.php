@@ -16,6 +16,7 @@ return [
     'Ubah status' => 'Change status',
     'Input manual petugas' => 'Manual entry by staff',
     'Diubah manual oleh Super Admin' => 'Changed manually by Super Admin',
+    'Diubah manual oleh admin' => 'Changed manually by an admin',
     'Password sementara' => 'Temporary password',
     'Keluar' => 'Sign out',
     'Mahasiswa S1' => 'Undergraduate Student',

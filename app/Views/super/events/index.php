@@ -1,6 +1,6 @@
 <div class="pagehead">
   <div><h2><?= e(t('Event')) ?></h2><p><?= e(t(':n event terdaftar', ['n' => count($events)])) ?></p></div>
-  <a class="btn btn-primary" href="<?= e(url('admin/event/baru')) ?>"><?= icon('plus', 18) ?><?= e(t('Buat event')) ?></a>
+  <?php if (is_super()): ?><a class="btn btn-primary" href="<?= e(url('admin/event/baru')) ?>"><?= icon('plus', 18) ?><?= e(t('Buat event')) ?></a><?php endif; ?>
 </div>
 <?php if (!$events): ?>
   <?= \App\Core\View::partial('no_event', ['heading' => t('Belum ada event'), 'text' => t('Buat event pertama untuk membuka registrasi peserta.'), 'cta' => ['admin/event/baru', t('Buat event')]]) ?>
