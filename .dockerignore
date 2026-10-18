@@ -1,0 +1,6 @@
+# Konteks build Docker: file yang tidak perlu dikirim ke daemon.
+.git
+.opencode
+.env
+storage/database.sqlite*
+storage/logs/*.log
