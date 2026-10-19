@@ -13,7 +13,7 @@ $eid = (int) $event['id'];
       <label class="opt<?= $dis ? ' dis' : '' ?>"><input type="radio" name="eligibility" value="<?= e($k) ?>"<?= checked($settings['eligibility'], $k) ?><?= $dis ? ' disabled' : '' ?>><span class="rd"></span><span class="ot"><b><?= e(t($label)) ?></b></span></label>
     <?php endforeach; ?>
   </div>
-  <p class="small muted"><?= e(t('Event memakai satu sesi absensi, sehingga persentase kehadiran minimum belum dapat dihitung. Peserta berstatus Tidak Hadir tidak pernah dimasukkan otomatis kecuali mode seluruh peserta dipilih Super Admin.')) ?></p>
+  <p class="small muted"><?= e(t('Event memakai satu sesi presensi, sehingga persentase kehadiran minimum belum dapat dihitung. Peserta berstatus Tidak Hadir tidak pernah dimasukkan otomatis kecuali mode seluruh peserta dipilih Super Admin.')) ?></p>
   <div class="g-form two">
     <div class="fld"><label for="issue_date"><?= e(t('Tanggal terbit')) ?><span class="en"><?= e(t('Kosongkan untuk memakai tanggal event')) ?></span></label><input class="inp" id="issue_date" name="issue_date" type="date" value="<?= e($settings['issue_date'] ?? '') ?>"></div>
     <?php if (is_super()): ?>

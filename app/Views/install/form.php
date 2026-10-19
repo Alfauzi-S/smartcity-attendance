@@ -22,7 +22,7 @@ $cls = static fn (string $k) => 'fld' . (isset($errors[$k]) ? ' is-err' : '');
       <div class="<?= $cls('username') ?>"><label for="username"><?= e(t('Username')) ?></label><input class="inp mono" id="username" name="username" required autocapitalize="none" value="<?= e($old['username']) ?>"><?= field_error($errors, 'username') ?></div>
       <div class="<?= $cls('password') ?>"><label for="password"><?= e(t('Password')) ?><span class="en"><?= e(t('Minimal 10 karakter, kombinasi huruf dan angka')) ?></span></label><input class="inp" id="password" name="password" type="password" autocomplete="new-password" required><?= field_error($errors, 'password') ?></div>
       <div class="fld"><label for="password_confirm"><?= e(t('Ulangi password')) ?></label><input class="inp" id="password_confirm" name="password_confirm" type="password" autocomplete="new-password" required></div>
-      <label class="chk"><input type="checkbox" name="demo" value="1"<?= checked($old['demo'], '1') ?>><?= e(t('Isi data demo (2 event, 196 peserta, 2 Admin Absensi, 1 Admin Event, contoh sertifikat)')) ?></label>
+      <label class="chk"><input type="checkbox" name="demo" value="1"<?= checked($old['demo'], '1') ?>><?= e(t('Isi data demo (2 event, 196 peserta, 2 Admin Presensi, 1 Admin Event, contoh sertifikat)')) ?></label>
       <p class="hint small muted"><?= e(t('Data demo cocok untuk uji coba. Untuk produksi, biarkan tidak dicentang.')) ?></p>
       <button class="btn btn-primary lg block" type="submit"><?= e(t('Pasang sekarang')) ?></button>
     </form>

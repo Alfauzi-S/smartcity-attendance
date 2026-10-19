@@ -39,9 +39,9 @@
         <?php if ($event['reg_start'] || $event['reg_end']): ?>
         <div><span class="mono"><?= e(t('Registrasi')) ?></span><span><?= e(reg_period($event)) ?></span></div>
         <?php endif; ?>
-        <div><span class="mono"><?= e($event['att_start']) ?></span><span><?= e(t('Absensi QR dibuka di lokasi')) ?></span></div>
+        <div><span class="mono"><?= e($event['att_start']) ?></span><span><?= e(t('Presensi QR dibuka di lokasi')) ?></span></div>
         <div><span class="mono"><?= e($event['start_time']) ?></span><span><?= e(t('Acara dimulai')) ?></span></div>
-        <div><span class="mono"><?= e($event['att_end']) ?></span><span><?= e(t('Absensi QR ditutup')) ?></span></div>
+        <div><span class="mono"><?= e($event['att_end']) ?></span><span><?= e(t('Presensi QR ditutup')) ?></span></div>
         <?php if ($event['end_time'] !== ''): ?><div><span class="mono"><?= e($event['end_time']) ?></span><span><?= e(t('Acara selesai')) ?></span></div><?php endif; ?>
       </div>
     </div>

@@ -30,8 +30,8 @@ $action = $editId ? 'admin/event/' . $editId . '/ubah' : 'admin/event/baru';
         <div class="<?= $cls('reg_end') ?>"><label for="reg_end"><?= e(t('Registrasi ditutup')) ?> <span class="muted" style="font-weight:500">(<?= e(t('opsional')) ?>)</span></label><input class="inp" type="date" id="reg_end" name="reg_end" value="<?= $v('reg_end') ?>"><?= field_error($errors, 'reg_end') ?></div>
       </div>
       <div class="g-form two" style="gap:12px">
-        <div class="<?= $cls('att_start') ?>"><label for="att_start"><?= e(t('Absensi mulai')) ?><span class="req">*</span></label><input class="inp" type="time" id="att_start" name="att_start" required value="<?= $v('att_start') ?>"><?= field_error($errors, 'att_start') ?></div>
-        <div class="<?= $cls('att_end') ?>"><label for="att_end"><?= e(t('Absensi selesai')) ?><span class="req">*</span></label><input class="inp" type="time" id="att_end" name="att_end" required value="<?= $v('att_end') ?>"><?= field_error($errors, 'att_end') ?></div>
+        <div class="<?= $cls('att_start') ?>"><label for="att_start"><?= e(t('Presensi mulai')) ?><span class="req">*</span></label><input class="inp" type="time" id="att_start" name="att_start" required value="<?= $v('att_start') ?>"><?= field_error($errors, 'att_start') ?></div>
+        <div class="<?= $cls('att_end') ?>"><label for="att_end"><?= e(t('Presensi selesai')) ?><span class="req">*</span></label><input class="inp" type="time" id="att_end" name="att_end" required value="<?= $v('att_end') ?>"><?= field_error($errors, 'att_end') ?></div>
       </div>
       <?php if (Event::hasQuotaColumns()): ?>
       <div class="g-form two" style="gap:12px">
@@ -41,7 +41,7 @@ $action = $editId ? 'admin/event/' . $editId . '/ubah' : 'admin/event/baru';
       <?php endif; ?>
     </div>
     <?php if (Event::hasQuotaColumns()): ?><p class="hint small muted"><?= e(t('Registrasi otomatis ditutup saat jumlah pendaftar mencapai kuota, atau saat tanggal dan jam tutup terlewati.')) ?></p><?php else: ?><p class="hint small" style="color:var(--warn-ink)"><?= e(t('Jalankan migrasi database untuk memakai kuota peserta dan jam tutup registrasi.')) ?></p><?php endif; ?>
-    <p class="hint small muted"><?= e(t('Jam absensi dipakai sebagai informasi dan grafik. Scan hanya tersimpan saat absensi dibuka secara manual di halaman detail event.')) ?></p>
+    <p class="hint small muted"><?= e(t('Jam presensi dipakai sebagai informasi dan grafik. Scan hanya tersimpan saat presensi dibuka secara manual di halaman detail event.')) ?></p>
   </div>
   <div class="card">
     <div class="card-h"><h3><?= e(t('Status')) ?></h3></div>

@@ -7,7 +7,7 @@ return [
     'app_name' => 'SmartCity Attendance',
 
     // Kosongkan agar alamat terdeteksi otomatis.
-    // Isi jika aplikasi berada di balik proxy, mis. 'https://absensi.kampus.ac.id'
+    // Isi jika aplikasi berada di balik proxy, mis. 'https://presensi.kampus.ac.id'
     'base_url' => '',
 
     // true jika server mendukung URL rewrite (.htaccess / try_files Nginx).

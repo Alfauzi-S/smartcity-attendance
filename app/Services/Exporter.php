@@ -7,7 +7,7 @@ use App\Core\Database as DB;
 use App\Models\Participant;
 use ZipArchive;
 
-/** Ekspor data absensi ke CSV atau Excel (.xlsx). */
+/** Ekspor data presensi ke CSV atau Excel (.xlsx). */
 final class Exporter
 {
     public const HEADERS = ['No', 'Nomor Identitas', 'Nama Lengkap', 'Profesi', 'WhatsApp / HP', 'Institusi', 'Program Studi', 'Status', 'Waktu Hadir', 'Metode', 'Kode Peserta', 'Terdaftar'];

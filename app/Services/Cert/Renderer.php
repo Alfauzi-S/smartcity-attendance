@@ -19,7 +19,7 @@ final class Renderer
     /**
      * @param array  $snap    hasil CertTemplate::snapshot()
      * @param array  $values  nilai placeholder (key => teks)
-     * @param string $qrUrl   isi QR verifikasi (bukan QR absensi)
+     * @param string $qrUrl   isi QR verifikasi (bukan QR presensi)
      * @return string isi file PDF
      */
     public static function pdf(array $snap, array $values, string $qrUrl, bool $preview = false, string $title = ''): string

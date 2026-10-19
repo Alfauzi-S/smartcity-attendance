@@ -3,7 +3,7 @@ use App\Core\View;
 
 $regLink = full_url('e/' . $e['slug']);
 $canEdit = can('event_edit', (int) $e['id']);
-$attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['closed', t('Tutup absensi'), 'btn-danger'], 'closed' => ['open', t('Buka kembali absensi'), 'btn-outline']][$e['att_status']];
+$attNext = ['notyet' => ['open', t('Buka presensi'), 'btn-primary'], 'open' => ['closed', t('Tutup presensi'), 'btn-danger'], 'closed' => ['open', t('Buka kembali presensi'), 'btn-outline']][$e['att_status']];
 ?>
 <div class="pagehead">
   <div><h2><?= e($e['name']) ?></h2><p><?= e(date_id($e['event_date'], true)) ?> · <?= e(event_time($e)) ?> <?= e(config('timezone_label', 'WITA')) ?></p></div>
@@ -28,7 +28,7 @@ $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['
     <div class="card-h"><h3><?= e(t('Kendali cepat')) ?></h3></div>
     <div class="kv">
       <div><span class="k"><?= e(t('Registrasi')) ?></span><span class="v"><?= post_button('admin/event/' . $e['id'] . '/pengaturan', $e['reg_status'] === 'Dibuka' ? t('Tutup registrasi') : t('Buka registrasi'), ['field' => 'reg_status', 'value' => $e['reg_status'] === 'Dibuka' ? 'Ditutup' : 'Dibuka'], 'btn ' . ($e['reg_status'] === 'Dibuka' ? 'btn-outline' : 'btn-primary') . ' sm', $e['reg_status'] === 'Dibuka' ? t('Tutup registrasi? Peserta baru tidak bisa mendaftar.') : '') ?></span></div>
-      <div><span class="k"><?= e(t('Absensi (scan QR)')) ?></span><span class="v"><?= post_button('admin/event/' . $e['id'] . '/pengaturan', $attNext[1], ['field' => 'att_status', 'value' => $attNext[0]], 'btn ' . $attNext[2] . ' sm', $attNext[0] === 'closed' ? t('Tutup absensi? Scan berikutnya tidak akan tersimpan.') : '') ?></span></div>
+      <div><span class="k"><?= e(t('Presensi (scan QR)')) ?></span><span class="v"><?= post_button('admin/event/' . $e['id'] . '/pengaturan', $attNext[1], ['field' => 'att_status', 'value' => $attNext[0]], 'btn ' . $attNext[2] . ' sm', $attNext[0] === 'closed' ? t('Tutup presensi? Scan berikutnya tidak akan tersimpan.') : '') ?></span></div>
       <div><span class="k"><?= e(t('Status event')) ?></span><span class="v">
         <form method="post" action="<?= e(url('admin/event/' . $e['id'] . '/pengaturan')) ?>" class="row" style="gap:6px;justify-content:flex-end"><?= csrf_field() ?><input type="hidden" name="field" value="status">
           <select class="inp" name="value" style="min-height:38px;width:auto;padding-top:6px;padding-bottom:6px" aria-label="<?= e(t('Status event')) ?>"><?php foreach (\App\Models\Event::STATUSES as $o): ?><option value="<?= e($o) ?>"<?= selected($e['status'], $o) ?>><?= e(t($o)) ?></option><?php endforeach; ?></select>
@@ -45,13 +45,13 @@ $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['
       <div><dt><?= e(t('Lokasi')) ?></dt><dd><?= e($e['location']) ?></dd></div>
       <div><dt><?= e(t('Periode registrasi')) ?></dt><dd><?= e(reg_period($e)) ?></dd></div>
       <?php if (\App\Models\Event::quota($e) !== null): ?><div><dt><?= e(t('Kuota peserta')) ?></dt><dd><?= e(t(':n dari :q terisi · sisa :s', ['n' => $stats['total'], 'q' => \App\Models\Event::quota($e), 's' => \App\Models\Event::seatsLeft($e)])) ?></dd></div><?php endif; ?>
-      <div><dt><?= e(t('Jam absensi')) ?></dt><dd class="mono"><?= e($e['att_start']) ?>–<?= e($e['att_end']) ?></dd></div>
+      <div><dt><?= e(t('Jam presensi')) ?></dt><dd class="mono"><?= e($e['att_start']) ?>–<?= e($e['att_end']) ?></dd></div>
     </dl>
     <?php if ($e['description']): ?><p class="small" style="color:var(--ink2)"><?= nl2br(e($e['description'])) ?></p><?php endif; ?>
   </div>
   <div class="card">
-    <div class="card-h"><h3><?= e(t('Admin Absensi bertugas')) ?></h3><?php if (is_super()): ?><a class="btn btn-ghost sm" href="<?= e(url('admin/akun/baru', ['ev' => $e['id']])) ?>"><?= icon('userplus', 16) ?><?= e(t('Tambah')) ?></a><?php endif; ?></div>
-    <?php if (!$admins): ?><p class="muted small"><?= e(t('Belum ada Admin Absensi untuk event ini.')) ?></p><?php else: ?>
+    <div class="card-h"><h3><?= e(t('Admin Presensi bertugas')) ?></h3><?php if (is_super()): ?><a class="btn btn-ghost sm" href="<?= e(url('admin/akun/baru', ['ev' => $e['id']])) ?>"><?= icon('userplus', 16) ?><?= e(t('Tambah')) ?></a><?php endif; ?></div>
+    <?php if (!$admins): ?><p class="muted small"><?= e(t('Belum ada Admin Presensi untuk event ini.')) ?></p><?php else: ?>
       <div class="list"><?php foreach ($admins as $a): ?>
         <a class="pc" href="<?= e(is_super() ? url('admin/akun/' . $a['id']) : '#') ?>"><span class="av t"><?= e(initials($a['name'])) ?></span><span class="who"><b><?= e($a['name']) ?></b><span>@<?= e($a['username']) ?></span></span><span class="bdg <?= $a['status'] === 'Aktif' ? 'bdg-ok' : 'bdg-mute' ?>"><?= e(t($a['status'])) ?></span></a>
       <?php endforeach; ?></div>

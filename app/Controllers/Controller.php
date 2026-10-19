@@ -19,7 +19,7 @@ abstract class Controller
 
     /**
      * Event yang sedang dikelola.
-     * Admin Absensi selalu terkunci ke event yang ditugaskan Super Admin.
+     * Admin Presensi selalu terkunci ke event yang ditugaskan Super Admin.
      * Super Admin bisa memilih lewat ?ev= (diingat di sesi).
      * Admin Event hanya bisa memilih event yang ditugaskan dan memiliki izin $perm;
      * meminta event lain lewat ?ev= atau body API ditolak (403) dan dicatat.

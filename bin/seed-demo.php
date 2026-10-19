@@ -59,7 +59,7 @@ if ($mainId === 0) {
 }
 $r = CertDemoSeeder::run($super, $mainId);
 foreach ($accounts as $a) {
-    echo "Admin Absensi : {$a['username']} / {$a['password']}\n";
+    echo "Admin Presensi : {$a['username']} / {$a['password']}\n";
 }
 if ($r['account']) {
     echo "Admin Event   : {$r['account']['username']} / {$r['account']['password']}\n";

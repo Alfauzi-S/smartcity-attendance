@@ -47,7 +47,7 @@ $r->get('/masuk', [AuthController::class, 'form']);
 $r->post('/masuk', [AuthController::class, 'login']);
 $r->post('/keluar', [AuthController::class, 'logout']);
 
-// Admin Absensi
+// Admin Presensi
 $r->get('/petugas', [StaffController::class, 'dashboard']);
 $r->get('/petugas/scan', [StaffController::class, 'scan']);
 $r->get('/petugas/peserta', [StaffController::class, 'participants']);

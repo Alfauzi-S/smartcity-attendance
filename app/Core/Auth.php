@@ -13,7 +13,7 @@ final class Auth
     /** Admin Event: mengelola event yang ditugaskan lewat tabel event_admin_assignments. */
     public const EVENT = 'event';
 
-    public const ROLE_LABELS = [self::SUPER => 'Super Admin', self::EVENT => 'Admin Event', self::ADMIN => 'Admin Absensi'];
+    public const ROLE_LABELS = [self::SUPER => 'Super Admin', self::EVENT => 'Admin Event', self::ADMIN => 'Admin Presensi'];
 
     private static ?array $user = null;
     private static bool $loaded = false;

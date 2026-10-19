@@ -1,6 +1,6 @@
 <?php use App\Core\View; ?>
 <div class="card">
-  <div class="idcard"><span class="av lg t"><?= e(initials($user['name'])) ?></span><div><b><?= e($user['name']) ?></b><span>@<?= e($user['username']) ?> · <?= e(t('Admin Absensi')) ?></span></div></div>
+  <div class="idcard"><span class="av lg t"><?= e(initials($user['name'])) ?></span><div><b><?= e($user['name']) ?></b><span>@<?= e($user['username']) ?> · <?= e(t('Admin Presensi')) ?></span></div></div>
   <dl class="kv">
     <div><dt><?= e(t('Event')) ?></dt><dd><?= e($event['name'] ?? t('Belum ditugaskan')) ?></dd></div>
     <div><dt><?= e(t('Total scan')) ?></dt><dd><?= e(t(':n peserta', ['n' => (int) $scans])) ?></dd></div>

@@ -88,11 +88,11 @@
         break;
       case 'notyet':
         tone('warn');
-        show('warn', 'clock', T('Absensi belum dibuka'), T('Kehadiran belum bisa disimpan. Jadwal absensi :start–:end. Super Admin perlu membuka absensi.', { start: esc(data.event.att_start), end: esc(data.event.att_end) }), personBlock(p), NEXT);
+        show('warn', 'clock', T('Presensi belum dibuka'), T('Kehadiran belum bisa disimpan. Jadwal presensi :start–:end. Super Admin perlu membuka presensi.', { start: esc(data.event.att_start), end: esc(data.event.att_end) }), personBlock(p), NEXT);
         break;
       case 'closed':
         tone('bad');
-        show('bad', 'clock', T('Absensi sudah ditutup'), T('Scan tidak lagi disimpan. Peserta yang terlambat dapat diproses manual oleh Super Admin.'), personBlock(p), NEXT);
+        show('bad', 'clock', T('Presensi sudah ditutup'), T('Scan tidak lagi disimpan. Peserta yang terlambat dapat diproses manual oleh Super Admin.'), personBlock(p), NEXT);
         break;
       default:
         tone('bad');

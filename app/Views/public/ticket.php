@@ -31,7 +31,7 @@
     <div class="card-h"><h3><?= e($event['name']) ?></h3></div>
     <dl class="kv">
       <div><dt><?= e(t('Tanggal')) ?></dt><dd><?= e(date_id($event['event_date'], true)) ?></dd></div>
-      <div><dt><?= e(t('Absensi dibuka')) ?></dt><dd class="mono"><?= e($event['att_start']) ?>–<?= e($event['att_end']) ?> <?= e(config('timezone_label', 'WITA')) ?></dd></div>
+      <div><dt><?= e(t('Presensi dibuka')) ?></dt><dd class="mono"><?= e($event['att_start']) ?>–<?= e($event['att_end']) ?> <?= e(config('timezone_label', 'WITA')) ?></dd></div>
       <div><dt><?= e(t('Lokasi')) ?></dt><dd><?= e($event['location']) ?></dd></div>
     </dl>
   </div>

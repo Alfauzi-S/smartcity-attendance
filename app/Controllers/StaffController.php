@@ -9,7 +9,7 @@ use App\Models\Participant;
 use App\Models\User;
 use App\Services\Access;
 
-/** Halaman Admin Absensi. Super Admin juga boleh memakai scanner. */
+/** Halaman Admin Presensi. Super Admin juga boleh memakai scanner. */
 final class StaffController extends Controller
 {
     private const PER_PAGE = 25;

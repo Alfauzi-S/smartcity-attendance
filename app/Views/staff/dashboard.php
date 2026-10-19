@@ -5,7 +5,7 @@
   <div class="pagehead"><div><h2><?= e(t('Halo, :name', ['name' => explode(' ', $user['name'])[0]])) ?></h2><p><?= e(t('Anda telah memindai :n peserta.', ['n' => (int) $myScans])) ?></p></div></div>
   <?= View::partial('event_card', ['event' => $event]) ?>
   <?php if ($event['att_status'] !== 'open'): ?>
-    <div class="banner <?= $event['att_status'] === 'closed' ? 'bad' : 'warn' ?>"><?= icon('clock') ?><div class="grow"><b><?= e($event['att_status'] === 'closed' ? t('Absensi sudah ditutup') : t('Absensi belum dibuka')) ?></b><?= e(t('Scan QR hanya bisa disimpan saat Super Admin membuka absensi.')) ?></div></div>
+    <div class="banner <?= $event['att_status'] === 'closed' ? 'bad' : 'warn' ?>"><?= icon('clock') ?><div class="grow"><b><?= e($event['att_status'] === 'closed' ? t('Presensi sudah ditutup') : t('Presensi belum dibuka')) ?></b><?= e(t('Scan QR hanya bisa disimpan saat Super Admin membuka presensi.')) ?></div></div>
   <?php endif; ?>
   <a class="btn btn-primary lg block" href="<?= e(url('petugas/scan')) ?>"><?= icon('scan') ?><?= e(t('Mulai scan QR')) ?></a>
   <?= View::partial('stats', ['stats' => $stats]) ?>

@@ -11,7 +11,7 @@ use App\Models\User;
 use App\Services\Access;
 use App\Services\Validator;
 
-/** Kelola akun Admin Absensi dan Admin Event, termasuk penugasan event (khusus Super Admin). */
+/** Kelola akun Admin Presensi dan Admin Event, termasuk penugasan event (khusus Super Admin). */
 final class AccountController extends Controller
 {
     private const ROLES = [Auth::ADMIN, Auth::EVENT];
@@ -73,11 +73,11 @@ final class AccountController extends Controller
             AuditLog::add($super, 'assignment.add', (int) $d['event_id'], 'user', $id, ['username' => $d['username'], 'perms' => Access::DEFAULT_PERMS]);
         }
         $_SESSION['new_credential'] = ['id' => $id, 'username' => $d['username'], 'password' => $d['password']];
-        flash('ok', $isEvent ? 'Akun Admin Event dibuat' : 'Akun Admin Absensi dibuat', '@' . $d['username']);
+        flash('ok', $isEvent ? 'Akun Admin Event dibuat' : 'Akun Admin Presensi dibuat', '@' . $d['username']);
         redirect('admin/akun/' . $id);
     }
 
-    /** Hanya akun Admin Absensi / Admin Event. Akun Super Admin tidak dikelola dari sini. */
+    /** Hanya akun Admin Presensi / Admin Event. Akun Super Admin tidak dikelola dari sini. */
     private function findAdmin(string $id): array
     {
         $a = User::find((int) $id);

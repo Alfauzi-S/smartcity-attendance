@@ -10,7 +10,7 @@ use App\Models\User;
 
 /**
  * Data demo fiktif: 1 event aktif hari ini, 156 peserta (98 hadir, 8 tidak hadir),
- * dan 2 akun Admin Absensi. Hanya untuk uji coba; jangan dipakai di event sungguhan.
+ * dan 2 akun Admin Presensi. Hanya untuk uji coba; jangan dipakai di event sungguhan.
  */
 final class DemoSeeder
 {
@@ -42,7 +42,7 @@ final class DemoSeeder
 
         $accounts = [];
         $adminIds = [];
-        foreach ([['Petugas Absensi A', 'petugas.a'], ['Petugas Absensi B', 'petugas.b']] as [$name, $username]) {
+        foreach ([['Petugas Presensi A', 'petugas.a'], ['Petugas Presensi B', 'petugas.b']] as [$name, $username]) {
             if (User::findByUsername($username)) {
                 continue;
             }

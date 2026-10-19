@@ -76,7 +76,7 @@ final class Validator
         if (!preg_match($date, $d['event_date'])) {
             $e['event_date'] = t('Pilih tanggal event.');
         }
-        foreach (['start_time' => 'jam mulai', 'end_time' => 'jam selesai', 'att_start' => 'waktu mulai absensi', 'att_end' => 'waktu selesai absensi'] as $k => $label) {
+        foreach (['start_time' => 'jam mulai', 'end_time' => 'jam selesai', 'att_start' => 'waktu mulai presensi', 'att_end' => 'waktu selesai presensi'] as $k => $label) {
             if ($k === 'end_time' && $d[$k] === '') {
                 continue; // jam selesai boleh kosong: acara "sampai selesai"
             }
@@ -88,7 +88,7 @@ final class Validator
             $e['end_time'] = t('Harus setelah jam mulai.');
         }
         if (!isset($e['att_end']) && !isset($e['att_start']) && $d['att_end'] <= $d['att_start']) {
-            $e['att_end'] = t('Harus setelah waktu mulai absensi.');
+            $e['att_end'] = t('Harus setelah waktu mulai presensi.');
         }
         foreach (['reg_start', 'reg_end'] as $k) {
             if ($d[$k] !== null && !preg_match($date, $d[$k])) {

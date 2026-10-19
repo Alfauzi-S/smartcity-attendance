@@ -5,7 +5,7 @@ namespace App\Models;
 
 use App\Core\Database as DB;
 
-/** Riwayat perubahan status absensi manual oleh Super Admin. */
+/** Riwayat perubahan status presensi manual oleh Super Admin. */
 final class StatusHistory
 {
     public static function add(int $participantId, string $old, string $new, string $reason, array $by): void

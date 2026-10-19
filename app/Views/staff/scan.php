@@ -9,11 +9,11 @@ $isSuper = $user['role'] === 'super';
   <?= View::partial('no_event', $isSuper ? ['heading' => t('Belum ada event'), 'text' => t('Buat event terlebih dahulu.'), 'cta' => ['admin/event/baru', t('Buat event')]] : ['heading' => t('Akun belum ditugaskan ke event'), 'text' => t('Minta Super Admin menugaskan akun ini ke sebuah event.')]) ?>
 <?php else: ?>
 <div class="pagehead">
-  <div><h2><?= e($event['name']) ?></h2><p><?= e(t('Absensi :start–:end :tz', ['start' => $event['att_start'], 'end' => $event['att_end'], 'tz' => config('timezone_label', 'WITA')])) ?> · <?= e(date_id($event['event_date'])) ?></p></div>
+  <div><h2><?= e($event['name']) ?></h2><p><?= e(t('Presensi :start–:end :tz', ['start' => $event['att_start'], 'end' => $event['att_end'], 'tz' => config('timezone_label', 'WITA')])) ?> · <?= e(date_id($event['event_date'])) ?></p></div>
   <div class="row"><?= att_badge($event['att_status']) ?><?php if ($isSuper): ?><?= View::partial('event_picker', ['events' => $events, 'event' => $event, 'path' => 'petugas/scan']) ?><?php endif; ?></div>
 </div>
 <?php if ($event['att_status'] !== 'open'): ?>
-  <div class="banner <?= $event['att_status'] === 'closed' ? 'bad' : 'warn' ?>"><?= icon('clock') ?><div class="grow"><b><?= e($event['att_status'] === 'closed' ? t('Absensi sudah ditutup') : t('Absensi belum dibuka')) ?></b><?= e($isSuper ? t('QR masih bisa dipindai untuk dicek, tetapi kehadiran tidak akan tersimpan. Buka absensi di halaman detail event.') : t('QR masih bisa dipindai untuk dicek, tetapi kehadiran tidak akan tersimpan sampai Super Admin membuka absensi.')) ?></div></div>
+  <div class="banner <?= $event['att_status'] === 'closed' ? 'bad' : 'warn' ?>"><?= icon('clock') ?><div class="grow"><b><?= e($event['att_status'] === 'closed' ? t('Presensi sudah ditutup') : t('Presensi belum dibuka')) ?></b><?= e($isSuper ? t('QR masih bisa dipindai untuk dicek, tetapi kehadiran tidak akan tersimpan. Buka presensi di halaman detail event.') : t('QR masih bisa dipindai untuk dicek, tetapi kehadiran tidak akan tersimpan sampai Super Admin membuka presensi.')) ?></div></div>
 <?php endif; ?>
 <div class="scan-grid" id="scan-app"
      data-validate="<?= e(url('api/scan/validate')) ?>"

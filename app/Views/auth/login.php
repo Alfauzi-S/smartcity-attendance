@@ -2,8 +2,8 @@
   <div class="art">
     <div class="row" style="position:relative"><?= logo_mark(40) ?><b style="font-family:var(--f-display);color:#fff">SmartCity Attendance</b></div>
     <div class="stack" style="position:relative">
-      <h2><?= e(t('Absensi event yang cepat dan tercatat.')) ?></h2>
-      <p><?= e(t('Masuk sebagai Admin Absensi untuk memindai QR peserta, atau sebagai Super Admin untuk mengelola event, akun, dan laporan.')) ?></p>
+      <h2><?= e(t('Presensi event yang cepat dan tercatat.')) ?></h2>
+      <p><?= e(t('Masuk sebagai Admin Presensi untuk memindai QR peserta, atau sebagai Super Admin untuk mengelola event, akun, dan laporan.')) ?></p>
     </div>
     <img class="city" src="<?= e(asset('img/city.svg')) ?>" alt="">
   </div>

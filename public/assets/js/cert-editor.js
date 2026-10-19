@@ -356,7 +356,7 @@
       body.appendChild(range('opacity', T('Kepekatan'), 0.05, 1, 0.05, 1));
     } else {
       varsBox.hidden = true;
-      body.appendChild(h('p', { class: 'small muted' }, T('QR berisi tautan halaman verifikasi sertifikat (bukan QR absensi). Tautan dibuat otomatis saat generate.')));
+      body.appendChild(h('p', { class: 'small muted' }, T('QR berisi tautan halaman verifikasi sertifikat (bukan QR presensi). Tautan dibuat otomatis saat generate.')));
     }
     var g2 = h('div', { class: 'g-form two' });
     g2.appendChild(num('x', T('Posisi X (%)'), lo(el), 99));

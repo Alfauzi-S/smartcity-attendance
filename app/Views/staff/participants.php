@@ -6,5 +6,5 @@
   <?= View::partial('filters', ['path' => 'petugas/peserta', 'q' => $q, 'st' => $st, 'stats' => $stats]) ?>
   <?= View::partial('participant_list', ['list' => $list, 'base' => 'petugas/peserta/', 'q' => $q, 'st' => $st]) ?>
   <?= View::partial('pager', ['page' => $page, 'pages' => $pages, 'total' => $total, 'path' => 'petugas/peserta', 'query' => ['q' => $q, 'st' => $st]]) ?>
-  <p class="small muted"><?= icon('lock', 14) ?> <?= e(t('Admin Absensi hanya dapat melihat data. Perubahan status manual dilakukan oleh Super Admin.')) ?></p>
+  <p class="small muted"><?= icon('lock', 14) ?> <?= e(t('Admin Presensi hanya dapat melihat data. Perubahan status manual dilakukan oleh Super Admin.')) ?></p>
 <?php endif; ?>

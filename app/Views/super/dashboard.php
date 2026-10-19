@@ -4,7 +4,7 @@
     <?= post_button('admin/migrasi', t('Jalankan migrasi'), [], 'btn btn-primary sm', t('Jalankan migrasi database sekarang? Pastikan database sudah dicadangkan.'), 'refresh') ?></div>
 <?php endif; ?>
 <?php if (!$event): ?>
-  <?= View::partial('no_event', ['heading' => t('Selamat datang di SmartCity Attendance'), 'text' => t('Mulai dengan membuat event pertama. Setelah itu bagikan tautan registrasi dan buat akun Admin Absensi.'), 'cta' => ['admin/event/baru', t('Buat event')]]) ?>
+  <?= View::partial('no_event', ['heading' => t('Selamat datang di SmartCity Attendance'), 'text' => t('Mulai dengan membuat event pertama. Setelah itu bagikan tautan registrasi dan buat akun Admin Presensi.'), 'cta' => ['admin/event/baru', t('Buat event')]]) ?>
 <?php else:
   $max = max(1, ...array_column($slots, 'n') ?: [1]);
 ?>
@@ -16,7 +16,7 @@
   <?= View::partial('stats', ['stats' => $stats]) ?>
   <div class="g-2">
     <div class="card">
-      <div class="card-h"><h3><?= e(t('Check-in per 15 menit')) ?></h3><span class="sub"><?= e(t('Jam absensi :start–:end', ['start' => $event['att_start'], 'end' => $event['att_end']])) ?></span></div>
+      <div class="card-h"><h3><?= e(t('Check-in per 15 menit')) ?></h3><span class="sub"><?= e(t('Jam presensi :start–:end', ['start' => $event['att_start'], 'end' => $event['att_end']])) ?></span></div>
       <?php if (!array_sum(array_column($slots, 'n'))): ?>
         <p class="muted small"><?= e(t('Belum ada check-in lewat scan pada tanggal event.')) ?></p>
       <?php else: ?>
@@ -32,7 +32,7 @@
       <div class="stack" style="gap:8px">
         <a class="btn btn-primary block" href="<?= e(url('petugas/scan')) ?>"><?= icon('scan', 18) ?><?= e(t('Buka scanner')) ?></a>
         <a class="btn btn-outline block" href="<?= e(url('admin/laporan')) ?>"><?= icon('download', 18) ?><?= e(t('Ekspor rekap')) ?></a>
-        <a class="btn btn-ghost block" href="<?= e(url('admin/event/' . $event['id'])) ?>"><?= icon('sliders', 18) ?><?= e(t('Atur registrasi & absensi')) ?></a>
+        <a class="btn btn-ghost block" href="<?= e(url('admin/event/' . $event['id'])) ?>"><?= icon('sliders', 18) ?><?= e(t('Atur registrasi & presensi')) ?></a>
       </div>
     </div>
   </div>

@@ -55,7 +55,7 @@ $aria = static fn (string $k) => isset($errors[$k]) ? ' aria-invalid="true" aria
         <?= field_error($errors, 'field_of_study') ?>
       </div>
     </div>
-    <div class="banner info"><?= icon('info') ?><div class="grow"><?= e(t('Setelah dikirim, QR Code langsung tampil. Simpan baik-baik karena QR hanya berlaku untuk satu kali absensi.')) ?></div></div>
+    <div class="banner info"><?= icon('info') ?><div class="grow"><?= e(t('Setelah dikirim, QR Code langsung tampil. Simpan baik-baik karena QR hanya berlaku untuk satu kali presensi.')) ?></div></div>
     <button type="submit" class="btn btn-primary lg block"><?= e(t('Kirim registrasi')) ?></button>
   </form>
 </div>

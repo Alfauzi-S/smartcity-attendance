@@ -8,7 +8,7 @@ use App\Models\Participant;
 use App\Models\StatusHistory;
 
 /**
- * Aturan inti absensi:
+ * Aturan inti presensi:
  * - QR terbaca belum berarti hadir; harus divalidasi lalu disimpan.
  * - Scan hanya mengubah "belum" menjadi "hadir" (update atomik, tidak ada catatan ganda).
  * - Status "tidak" yang ditetapkan Super Admin tidak bisa ditimpa oleh scan.

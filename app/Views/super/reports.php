@@ -7,7 +7,7 @@ $opts = ['all' => t('Semua peserta'), 'hadir' => t('Hadir'), 'belum' => t('Belum
 <?php if (!$event): ?>
   <?= View::partial('no_event', ['heading' => t('Belum ada event'), 'text' => t('Laporan muncul setelah ada event dan peserta.'), 'cta' => ['admin/event/baru', t('Buat event')]]) ?>
 <?php else: ?>
-  <div class="pagehead"><div><h2><?= e(t('Laporan absensi')) ?></h2><p><?= e($event['name']) ?> · <?= e(date_id($event['event_date'], true)) ?></p></div></div>
+  <div class="pagehead"><div><h2><?= e(t('Laporan presensi')) ?></h2><p><?= e($event['name']) ?> · <?= e(date_id($event['event_date'], true)) ?></p></div></div>
   <?= View::partial('event_picker', ['events' => $events, 'event' => $event, 'path' => 'admin/laporan']) ?>
   <?= View::partial('stats', ['stats' => $stats]) ?>
   <div class="g-2">

@@ -147,7 +147,7 @@ final class Event
         return $s;
     }
 
-    /** Jumlah check-in per 15 menit selama jendela absensi. */
+    /** Jumlah check-in per 15 menit selama jendela presensi. */
     public static function checkinSlots(array $e): array
     {
         $start = self::minutes($e['att_start']);

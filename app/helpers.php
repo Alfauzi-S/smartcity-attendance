@@ -255,9 +255,9 @@ function reg_badge(string $status): string
 }
 
 const ATT_LABELS = [
-    'notyet' => ['Absensi belum dibuka', 'mute'],
-    'open' => ['Absensi dibuka', 'ok'],
-    'closed' => ['Absensi ditutup', 'bad'],
+    'notyet' => ['Presensi belum dibuka', 'mute'],
+    'open' => ['Presensi dibuka', 'ok'],
+    'closed' => ['Presensi ditutup', 'bad'],
 ];
 
 function att_badge(string $status): string

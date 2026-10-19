@@ -19,7 +19,7 @@ final class ReportController extends Controller
         $event = $this->currentEvent($user, null, 'reports');
         $st = query('st', 'all');
         $this->render('super/reports', [
-            'title' => t('Laporan Absensi'),
+            'title' => t('Laporan Presensi'),
             'active' => 'reports',
             'event' => $event,
             'events' => Access::events($user, 'reports'),
@@ -43,13 +43,13 @@ final class ReportController extends Controller
         $format = query('format', 'csv');
         $rows = Exporter::rows((int) $event['id'], $st);
         AuditLog::add($user, 'report.export', (int) $event['id'], 'report', null, ['format' => $format, 'filter' => $st, 'rows' => max(0, count($rows) - 1)]);
-        $base = 'rekap-absensi_' . $event['slug'] . '_' . date('Ymd-Hi');
+        $base = 'rekap-presensi_' . $event['slug'] . '_' . date('Ymd-Hi');
         if ($format === 'xlsx') {
             if (!Exporter::xlsxAvailable()) {
                 flash('bad', 'Ekspor Excel tidak tersedia', 'Ekstensi PHP zip belum aktif di server. Gunakan CSV atau aktifkan ekstensi zip.');
                 redirect('admin/laporan');
             }
-            Exporter::xlsx($base . '.xlsx', t('Absensi'), $rows);
+            Exporter::xlsx($base . '.xlsx', t('Presensi'), $rows);
         }
         Exporter::csv($base . '.csv', $rows);
     }

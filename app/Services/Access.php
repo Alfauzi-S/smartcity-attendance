@@ -13,7 +13,7 @@ use App\Models\Event;
  * Hak akses per event (deny-by-default).
  * - Super Admin: semua event, semua izin.
  * - Admin Event: hanya event di tabel event_admin_assignments, dengan izin yang dicentang Super Admin.
- * - Admin Absensi: hanya izin 'attendance' pada event users.event_id.
+ * - Admin Presensi: hanya izin 'attendance' pada event users.event_id.
  * Semua pemeriksaan memakai data database, bukan event_id/participant_id kiriman browser.
  */
 final class Access
@@ -23,7 +23,7 @@ final class Access
         'event_edit' => 'Mengubah informasi dan status event',
         'participants' => 'Melihat dan mengoreksi data peserta',
         'status' => 'Mengubah status kehadiran manual',
-        'attendance' => 'Memindai QR / memproses absensi',
+        'attendance' => 'Memindai QR / memproses presensi',
         'reports' => 'Melihat laporan, riwayat, dan mengekspor',
         'cert_manage' => 'Mengelola template, variabel, nomor, dan generate sertifikat',
         'cert_publish' => 'Memublikasikan sertifikat',

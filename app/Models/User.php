@@ -22,7 +22,7 @@ final class User
         return (bool) DB::value("SELECT id FROM users WHERE role = 'super' LIMIT 1");
     }
 
-    /** Daftar akun Admin Absensi dan Admin Event beserta event dan jumlah scan. */
+    /** Daftar akun Admin Presensi dan Admin Event beserta event dan jumlah scan. */
     public static function admins(?string $role = null): array
     {
         $assign = DB::tableExists('event_admin_assignments')

@@ -38,7 +38,7 @@ img,svg{max-width:100%}
 .chip:hover:not(.on){border-color:var(--cyan)}
 form.inline{display:inline}
 
-/* ===== Shell aplikasi (Admin Absensi & Super Admin) ===== */
+/* ===== Shell aplikasi (Admin Presensi & Super Admin) ===== */
 .app{display:flex;min-height:100vh;width:100%}
 .col{flex:1;min-width:0;display:flex;flex-direction:column}
 .main{flex:1;min-width:0}

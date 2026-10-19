@@ -73,7 +73,7 @@ final class EventController extends Controller
         }
         $id = Event::create(self::normalize($d));
         AuditLog::add(Auth::user(), 'event.create', $id, 'event', $id);
-        flash('ok', 'Event berhasil dibuat', 'Bagikan tautan registrasi, lalu buat akun Admin Absensi.');
+        flash('ok', 'Event berhasil dibuat', 'Bagikan tautan registrasi, lalu buat akun Admin Presensi.');
         redirect('admin/event/' . $id);
     }
 
@@ -136,7 +136,7 @@ final class EventController extends Controller
             AuditLog::add($user, 'event.setting', (int) $e['id'], 'event', $e['id'], ['field' => $field, 'old' => $e[$field] ?? null, 'new' => $value]);
             $messages = [
                 'reg_status' => ['Dibuka' => 'Registrasi dibuka', 'Ditutup' => 'Registrasi ditutup'],
-                'att_status' => ['open' => 'Absensi dibuka', 'notyet' => 'Absensi belum dibuka', 'closed' => 'Absensi ditutup'],
+                'att_status' => ['open' => 'Presensi dibuka', 'notyet' => 'Presensi belum dibuka', 'closed' => 'Presensi ditutup'],
             ];
             $text = isset($messages[$field][$value])
                 ? t($messages[$field][$value])

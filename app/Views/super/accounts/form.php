@@ -6,11 +6,11 @@ $isEvent = $d['role'] === Auth::EVENT;
 ?>
 <form method="post" action="<?= e(url('admin/akun/baru')) ?>" class="card" novalidate data-loading="<?= e(t('Membuat akun…')) ?>">
   <?= csrf_field() ?>
-  <div class="card-h"><h3><?= e($isEvent ? t('Akun Admin Event baru') : t('Akun Admin Absensi baru')) ?></h3></div>
+  <div class="card-h"><h3><?= e($isEvent ? t('Akun Admin Event baru') : t('Akun Admin Presensi baru')) ?></h3></div>
   <div class="<?= $cls('role') ?>">
     <span class="lbl"><?= e(t('Peran')) ?><span class="req">*</span></span>
     <div class="opts">
-      <label class="opt"><input type="radio" name="role" value="<?= Auth::ADMIN ?>"<?= checked($d['role'], Auth::ADMIN) ?>><span class="rd"></span><span class="ot"><b><?= e(t('Admin Absensi')) ?></b><span><?= e(t('Memindai QR dan melihat peserta satu event.')) ?></span></span></label>
+      <label class="opt"><input type="radio" name="role" value="<?= Auth::ADMIN ?>"<?= checked($d['role'], Auth::ADMIN) ?>><span class="rd"></span><span class="ot"><b><?= e(t('Admin Presensi')) ?></b><span><?= e(t('Memindai QR dan melihat peserta satu event.')) ?></span></span></label>
       <?php if ($migrated): ?><label class="opt"><input type="radio" name="role" value="<?= Auth::EVENT ?>"<?= checked($d['role'], Auth::EVENT) ?>><span class="rd"></span><span class="ot"><b><?= e(t('Admin Event')) ?></b><span><?= e(t('Mengelola event yang ditugaskan: peserta, laporan, dan sertifikat sesuai izin.')) ?></span></span></label><?php endif; ?>
     </div>
     <?= field_error($errors, 'role') ?>
