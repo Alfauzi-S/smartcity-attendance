@@ -3,7 +3,7 @@
 Event registration, QR Code attendance, and automatic certificates, with a Smart City / Smart Campus theme.
 Built with **PHP 8.1+ (OOP, no framework)** and **MySQL/MariaDB** (or SQLite for testing).
 
-**Live Web:** [attd-demo.sinarputra.web.id/smartcity-attendance/public](https://smartcity-unmul.web.id/)
+**Live Web:** [smartcity-unmul.web.id](https://smartcity-unmul.web.id/)
 
 **User manual (Indonesian, PDF, with screenshots):** [Manual-Book-SmartCity-Attendance.pdf](Manual-Book-SmartCity-Attendance.pdf)
 
