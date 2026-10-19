@@ -47,6 +47,13 @@ final class CertVariable
         ['SIGNER_NAME', 'Nama penandatangan', 'Mis. nama Dekan beserta gelar'],
         ['SIGNER_TITLE', 'Jabatan penandatangan', 'Mis. Dekan Fakultas Teknik'],
         ['SIGNER_ID', 'NIP penandatangan', 'Opsional'],
+        ['SIGNER2_NAME', 'Nama penandatangan ke-2', 'Untuk template dengan beberapa penanda tangan, mis. Koordinator Program Studi'],
+        ['SIGNER2_TITLE', 'Jabatan penandatangan ke-2', 'Mis. Koordinator Program Studi Informatika'],
+        ['SIGNER2_ID', 'NIP penandatangan ke-2', 'Opsional'],
+        ['SIGNER3_NAME', 'Nama penandatangan ke-3', 'Mis. Ketua Panitia'],
+        ['SIGNER3_TITLE', 'Jabatan penandatangan ke-3', 'Mis. Ketua Panitia'],
+        ['SIGNER3_ID', 'NIP penandatangan ke-3', 'Opsional'],
+        ['EVENT_THEME', 'Tema kegiatan', 'Isi per event, mis. judul tema kuliah umum'],
         ['EVENT_CODE', 'Kode event', 'Isi per event (override)'],
         ['EVENT_CATEGORY', 'Kategori event', 'Mis. Seminar, Workshop. Isi per event'],
         ['EVENT_BATCH', 'Angkatan / batch event', 'Isi per event bila ada'],
@@ -61,7 +68,7 @@ final class CertVariable
             DB::insert('cert_variables', [
                 'scope' => 'global', 'scope_key' => 'global', 'event_id' => null, 'var_key' => $key, 'label' => $label,
                 'var_type' => 'text', 'source' => 'manual', 'source_field' => null, 'choices' => null, 'value' => null,
-                'default_value' => null, 'required' => $key === 'SIGNER_ID' || $key === 'EVENT_BATCH' ? 0 : 1,
+                'default_value' => null, 'required' => in_array($key, ['SIGNER_ID', 'SIGNER2_ID', 'SIGNER3_ID', 'EVENT_BATCH'], true) ? 0 : 1,
                 'overridable' => 1, 'description' => $desc, 'active' => 1, 'created_by' => null, 'created_at' => now(), 'updated_at' => now(),
             ]);
         }

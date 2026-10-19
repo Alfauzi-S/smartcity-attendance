@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\RateLimiter;
+use App\Core\Database as DB;
 use App\Models\Event;
 use App\Models\Participant;
 use App\Models\ParticipantOptions;
@@ -58,6 +59,23 @@ final class PublicController extends Controller
         $this->render('public/register', ['title' => t('Registrasi'), 'event' => $event, 'old' => [], 'errors' => []], 'public');
     }
 
+    /**
+     * Menyimpan peserta hanya bila kuota masih tersisa. Baris event dikunci dulu (UPDATE tanpa perubahan)
+     * agar dua pendaftaran bersamaan tidak sama-sama lolos saat kursi tinggal satu (MySQL: row lock, SQLite: write lock).
+     */
+    private function createWithinQuota(array $event, array $data): ?array
+    {
+        $id = (int) $event['id'];
+        return DB::transaction(static function () use ($id, $data): ?array {
+            DB::run('UPDATE events SET quota = quota WHERE id = ?', [$id]);
+            $fresh = Event::find($id);
+            if (!$fresh || Event::seatsLeft($fresh) === 0) {
+                return null;
+            }
+            return Participant::create($id, $data);
+        });
+    }
+
     public function register(string $slug): void
     {
         $event = $this->publicEvent($slug);
@@ -86,7 +104,12 @@ final class PublicController extends Controller
         }
         if (!$errors) {
             try {
-                $p = Participant::create((int) $event['id'], $data);
+                $p = Event::quota($event) === null
+                    ? Participant::create((int) $event['id'], $data)
+                    : $this->createWithinQuota($event, $data);
+                if ($p === null) {
+                    $errors['_form'] = t('Kuota peserta sudah penuh (:n orang). Registrasi ditutup otomatis.', ['n' => Event::quota($event)]);
+                }
             } catch (PDOException) {
                 $errors['identity_number'] = t('Nomor identitas ini sudah terdaftar di event ini.');
             }

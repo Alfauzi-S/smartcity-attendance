@@ -484,6 +484,8 @@ code{font-family:var(--f-mono);font-size:12.5px;color:var(--cyan-ink);word-break
 .cv-image.empty{background:rgba(239,68,68,.06);outline:1px dashed #DC2626;display:grid;place-items:center}
 .cv-tag{font:600 10px/1.2 var(--f-body);color:#B42121;text-align:center;padding:2px;background:rgba(255,255,255,.8);border-radius:4px}
 .cv-tag.bad{position:absolute;left:0;top:0}
+.cv-image.empty{overflow:hidden;padding:0;gap:0;text-align:center}
+.cv-image.empty .cv-tag{font-size:8px;line-height:1.1;width:100%;box-sizing:border-box;background:rgba(255,255,255,.85);align-self:center;overflow-wrap:anywhere}
 .cv-qr{display:grid;place-items:center;width:100%;height:100%;background:repeating-linear-gradient(45deg,#0B1220 0 3px,#fff 3px 6px);color:#fff;font:700 11px var(--f-mono);text-shadow:0 0 3px #000}
 .cv-rs{position:absolute;right:-5px;bottom:-5px;width:12px;height:12px;border-radius:3px;background:var(--cyan);border:2px solid #fff;cursor:nwse-resize;display:none}
 .cv-el.on .cv-rs{display:block}
@@ -497,6 +499,31 @@ code{font-family:var(--f-mono);font-size:12.5px;color:var(--cyan-ink);word-break
 .ed-var span{font-size:11.5px;color:var(--slate)}
 .ed-add{gap:6px}
 .ed-save{position:sticky;bottom:0;padding-bottom:4px}
+.cv-shape{outline-color:rgba(10,113,135,.2)}
+.cv-shape svg{display:block;overflow:visible;pointer-events:none}
+.cv-el.locked{outline:none}
+.cv-el.locked.on{outline:2px dashed var(--cyan)}
+.ed-color{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px}
+.ed-color input[type=color]{padding:4px;min-height:40px;cursor:pointer}
+.ed-sw{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.ed-sw button{width:21px;height:21px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:0}
+.ed-sw button.none{background:linear-gradient(135deg,#fff 45%,#DC2626 45% 55%,#fff 55%)}
+.ed-range{width:100%;accent-color:var(--cyan)}
+@font-face{font-family:CertSora;src:url(../fonts/cert/sora300.woff) format('woff');font-weight:300;font-display:swap}
+@font-face{font-family:CertSora;src:url(../fonts/cert/sora.woff) format('woff');font-weight:400;font-display:swap}
+@font-face{font-family:CertSora;src:url(../fonts/cert/sora600.woff) format('woff');font-weight:600;font-display:swap}
+@font-face{font-family:CertSora;src:url(../fonts/cert/sorab.woff) format('woff');font-weight:700;font-display:swap}
+@font-face{font-family:CertSora;src:url(../fonts/cert/sora800.woff) format('woff');font-weight:800;font-display:swap}
+@font-face{font-family:CertMontserrat;src:url(../fonts/cert/montserrat.woff) format('woff');font-weight:400;font-display:swap}
+@font-face{font-family:CertMontserrat;src:url(../fonts/cert/montserratb.woff) format('woff');font-weight:700;font-display:swap}
+@font-face{font-family:CertMontserrat;src:url(../fonts/cert/montserrati.woff) format('woff');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:CertMontserrat;src:url(../fonts/cert/montserratbi.woff) format('woff');font-weight:700;font-style:italic;font-display:swap}
+@font-face{font-family:CertCormorant;src:url(../fonts/cert/cormorant.woff) format('woff');font-weight:500;font-display:swap}
+@font-face{font-family:CertCormorant;src:url(../fonts/cert/cormorantb.woff) format('woff');font-weight:700;font-display:swap}
+@font-face{font-family:CertCormorant;src:url(../fonts/cert/cormoranti.woff) format('woff');font-weight:500;font-style:italic;font-display:swap}
+@font-face{font-family:CertCormorant;src:url(../fonts/cert/cormorantbi.woff) format('woff');font-weight:700;font-style:italic;font-display:swap}
+@font-face{font-family:CertGreatVibes;src:url(../fonts/cert/greatvibes.woff) format('woff');font-display:swap}
+@font-face{font-family:CertPinyon;src:url(../fonts/cert/pinyonscript.woff) format('woff');font-display:swap}
 .hint .mono,.hint code,.cert-num,.ed-var code{overflow-wrap:anywhere;word-break:break-word}
 .hint{overflow-wrap:anywhere}
 /* header publik di layar sempit: nama satu baris, tagline disembunyikan, tombol ringkas */

@@ -3,7 +3,7 @@
 Event registration, QR Code attendance, and automatic certificates, with a Smart City / Smart Campus theme.
 Built with **PHP 8.1+ (OOP, no framework)** and **MySQL/MariaDB** (or SQLite for testing).
 
-**Live demo:** [attd-demo.sinarputra.web.id/smartcity-attendance/public](https://attd-demo.sinarputra.web.id/smartcity-attendance/public/)
+**Live Web:** [attd-demo.sinarputra.web.id/smartcity-attendance/public](https://smartcity-unmul.web.id/)
 
 **User manual (Indonesian, PDF, with screenshots):** [Manual-Book-SmartCity-Attendance.pdf](Manual-Book-SmartCity-Attendance.pdf)
 
@@ -29,6 +29,7 @@ Built with **PHP 8.1+ (OOP, no framework)** and **MySQL/MariaDB** (or SQLite for
 ## Features
 
 - **Online registration** without an account: six required fields, one ID number per event.
+- **Quota and closing time**: registration closes automatically when the participant quota is reached or the closing date and time pass, and reopens if the quota is raised.
 - **Personal QR ticket** that participants can download as a PNG or reopen from a ticket link.
 - **Camera QR scanner** for staff, with a fallback to ticket-code entry and name/ID search when the camera is unavailable.
 - **Live dashboard**: present, not yet present, attendance rate, and check-ins per 15 minutes.
@@ -161,6 +162,11 @@ Menu **Certificates** (Super Admin, and Event Admins with a certificate permissi
 2. **Variables**: global values (university, faculty, signer, letter code) set by the Super Admin, per-event overrides, and custom variables. Built-in placeholders such as `{PARTICIPANT_NAME}`, `{EVENT_NAME}`, `{CERTIFICATE_NUMBER}` and `{VERIFICATION_URL}` fill in automatically. Templates only substitute text; nothing in a template is executed.
 3. **Number pattern**: for example `{SEQUENCE_PADDED}/{EVENT_CODE}/{FACULTY_LETTER_CODE}/{ROMAN_MONTH}/{YEAR}`. A new pattern starts as a Draft and needs Super Admin approval. Use the format confirmed by the faculty office. Sequence numbers are taken in a database transaction and never reused.
 4. **Template**: background (PNG/JPG or the first page of a PDF), drag-and-drop elements, watermarked **PDF preview**, then **Activate**. Issued certificates keep the template version they were made with.
+   - Start from the *Academic* layout or the *Modern dark* layout (navy-teal, Sora, 3 logo slots, 3 signer blocks, QR).
+   - Fonts: DejaVu Sans/Serif/Condensed, Sora (Light to ExtraBold), Montserrat, Cormorant Garamond, Great Vibes and Pinyon Script. All are embedded in the PDF; text with characters a font lacks falls back to DejaVu Sans.
+   - Text options: color picker or hex code, opacity, rotation, underline, uppercase, letter and line spacing, shrink-to-fit.
+   - Shapes: rectangle/band with rounded corners, circle, line, triangle, right triangle, diamond, parallelogram, trapezoid and hexagon, with fill, two-color gradient, border, dash, opacity, rotation and mirroring. A full-page color background can be added and locked.
+   - **Signer block** adds title, official signature slot, name and NIP from `{SIGNER_*}`, `{SIGNER2_*}` or `{SIGNER3_*}`. Up to 3 signatures per template, each with its own approved signature asset.
 5. **Eligibility**: Present only (default), everyone not marked Absent, or everyone (Super Admin only).
 6. **Generate**: all eligible participants, a selection, or one participant. Bulk generation runs in resumable batches, and a participant never gets two active certificates.
 7. **Publish**: certificates start as *Generated* (admins only). Published ones can be found at `/sertifikat`; downloading requires the last 4 characters of the ID number or the ticket code.
@@ -243,7 +249,8 @@ Bundled, so the app does not depend on a CDN:
 
 - [html5-qrcode](https://github.com/mebjas/html5-qrcode) 2.3.8 (Apache-2.0): camera scanner
 - [qrcodejs](https://github.com/davidshimjs/qrcodejs) 1.0.0 (MIT): ticket QR image
-- [TCPDF](https://github.com/tecnickcom/TCPDF) 6.11.4 (LGPL-3.0-or-later): certificate PDFs and certificate QR (DejaVu fonts only)
+- [TCPDF](https://github.com/tecnickcom/TCPDF) 6.11.4 (LGPL-3.0-or-later): certificate PDFs and certificate QR
+- Certificate fonts in `resources/fonts` (PDF) and `public/assets/fonts/cert` (editor preview): Sora, Montserrat, Cormorant Garamond, Great Vibes and Pinyon Script, all under the SIL Open Font License 1.1 (license texts included), plus DejaVu bundled with TCPDF
 - [FPDI](https://github.com/Setasign/FPDI) 2.6.9 (MIT): imports a PDF page as the certificate background
 
 The Sora and Inter fonts load from Google Fonts; without internet access the pages fall back to system fonts.

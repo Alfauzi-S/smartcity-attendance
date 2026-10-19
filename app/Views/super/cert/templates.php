@@ -13,6 +13,7 @@ $eid = (int) $event['id'];
     <div class="fld"><label for="preset"><?= e(t('Tata letak awal')) ?></label>
       <select class="inp" id="preset" name="preset">
         <option value="akademik"><?= e(t('Sertifikat akademik (A4 landscape, slot logo, tanda tangan, stempel, QR)')) ?></option>
+        <option value="modern"><?= e(t('Modern gelap (Sora, navy-teal, 3 logo, 3 penanda tangan, QR)')) ?></option>
         <option value="kosong"><?= e(t('Kosong')) ?></option>
       </select>
     </div>

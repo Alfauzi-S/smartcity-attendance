@@ -32,13 +32,27 @@ final class EventController extends Controller
         $d['reg_start'] = input('reg_start') !== '' ? input('reg_start') : null;
         $d['reg_end'] = input('reg_end') !== '' ? input('reg_end') : null;
         $d['description'] = mb_substr($d['description'], 0, 2000);
+        if (Event::hasQuotaColumns()) {
+            $d['quota'] = input('quota') !== '' ? input('quota') : null;
+            $d['reg_end_time'] = input('reg_end_time') !== '' ? input('reg_end_time') : null;
+        }
+        return $d;
+    }
+
+    /** Kuota disimpan sebagai angka; jam tutup tanpa tanggal tutup tidak berarti apa-apa. */
+    private static function normalize(array $d): array
+    {
+        if (array_key_exists('quota', $d)) {
+            $d['quota'] = $d['quota'] === null ? null : (int) $d['quota'];
+            $d['reg_end_time'] = $d['reg_end'] ? $d['reg_end_time'] : null;
+        }
         return $d;
     }
 
     private function blank(): array
     {
         return ['name' => '', 'description' => '', 'organizer' => '', 'location' => '', 'event_date' => '', 'start_time' => '', 'end_time' => '',
-            'reg_start' => '', 'reg_end' => '', 'att_start' => '', 'att_end' => '', 'status' => 'Draft', 'reg_status' => 'Ditutup'];
+            'reg_start' => '', 'reg_end' => '', 'reg_end_time' => '', 'quota' => '', 'att_start' => '', 'att_end' => '', 'status' => 'Draft', 'reg_status' => 'Ditutup'];
     }
 
     public function create(): void
@@ -57,7 +71,7 @@ final class EventController extends Controller
             $this->render('super/events/form', ['title' => t('Buat Event'), 'active' => 'events', 'back' => 'admin/event', 'e' => $d, 'errors' => $errors, 'editId' => null]);
             return;
         }
-        $id = Event::create($d);
+        $id = Event::create(self::normalize($d));
         AuditLog::add(Auth::user(), 'event.create', $id, 'event', $id);
         flash('ok', 'Event berhasil dibuat', 'Bagikan tautan registrasi, lalu buat akun Admin Absensi.');
         redirect('admin/event/' . $id);
@@ -105,7 +119,7 @@ final class EventController extends Controller
             $this->render('super/events/form', ['title' => t('Ubah Event'), 'active' => 'events', 'back' => 'admin/event/' . $e['id'], 'e' => $d + $e, 'errors' => $errors, 'editId' => (int) $e['id']]);
             return;
         }
-        Event::update((int) $e['id'], $d);
+        Event::update((int) $e['id'], self::normalize($d));
         $changed = array_keys(array_filter($d, static fn ($v, $k) => (string) $v !== (string) ($e[$k] ?? ''), ARRAY_FILTER_USE_BOTH));
         AuditLog::add($user, 'event.update', (int) $e['id'], 'event', $e['id'], ['fields' => $changed]);
         flash('ok', 'Perubahan event disimpan');

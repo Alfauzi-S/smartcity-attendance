@@ -20,7 +20,8 @@ foreach ($vars as $k => $v) {
 }
 $data = [
     'w' => $w, 'h' => $h, 'readonly' => !$draft, 'elements' => $elements, 'assets' => $assets, 'bg' => $bgUrl,
-    'kinds' => array_map('t', CertAsset::KINDS), 'fonts' => CertTemplate::FONTS, 'catalog' => $catalog,
+    'kinds' => array_map('t', CertAsset::KINDS), 'fonts' => array_map('t', CertTemplate::FONTS), 'fontMeta' => CertTemplate::FONT_META,
+    'shapes' => array_map('t', CertTemplate::SHAPES), 'polygons' => CertTemplate::POLYGONS, 'max' => CertTemplate::MAX_ELEMENTS, 'catalog' => $catalog,
 ];
 $badIssues = array_filter($issues, static fn ($i) => $i[0] === 'bad');
 ?>
@@ -69,6 +70,13 @@ $badIssues = array_filter($issues, static fn ($i) => $i[0] === 'bad');
         <button type="button" class="btn btn-outline sm" data-add="image"><?= icon('plus', 16) ?><?= e(t('Gambar')) ?></button>
         <button type="button" class="btn btn-outline sm" data-add="qr"><?= icon('plus', 16) ?><?= e(t('QR verifikasi')) ?></button>
       </div>
+      <div class="row ed-add">
+        <button type="button" class="btn btn-outline sm" data-add="shape"><?= icon('plus', 16) ?><?= e(t('Bentuk')) ?></button>
+        <button type="button" class="btn btn-outline sm" data-add="line"><?= icon('plus', 16) ?><?= e(t('Garis')) ?></button>
+        <button type="button" class="btn btn-outline sm" data-add="bg"><?= icon('plus', 16) ?><?= e(t('Latar warna')) ?></button>
+        <button type="button" class="btn btn-outline sm" data-add="signblock"><?= icon('plus', 16) ?><?= e(t('Blok penanda tangan')) ?></button>
+      </div>
+      <p class="hint small"><?= e(t('Blok penanda tangan berisi jabatan, slot tanda tangan resmi, nama, dan NIP dari variabel SIGNER (maks. 3). Bentuk dan garis bisa diberi warna, gradasi, transparansi, dan rotasi.')) ?></p>
       <?php endif; ?>
     </div>
     <?php if ($draft): ?>

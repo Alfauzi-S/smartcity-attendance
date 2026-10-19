@@ -6,7 +6,7 @@ $canEdit = can('event_edit', (int) $e['id']);
 $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['closed', t('Tutup absensi'), 'btn-danger'], 'closed' => ['open', t('Buka kembali absensi'), 'btn-outline']][$e['att_status']];
 ?>
 <div class="pagehead">
-  <div><h2><?= e($e['name']) ?></h2><p><?= e(date_id($e['event_date'], true)) ?> · <?= e($e['start_time']) ?>–<?= e($e['end_time']) ?> <?= e(config('timezone_label', 'WITA')) ?></p></div>
+  <div><h2><?= e($e['name']) ?></h2><p><?= e(date_id($e['event_date'], true)) ?> · <?= e(event_time($e)) ?> <?= e(config('timezone_label', 'WITA')) ?></p></div>
   <div class="row">
     <?php if ($canEdit): ?><a class="btn btn-outline sm" href="<?= e(url('admin/event/' . $e['id'] . '/ubah')) ?>"><?= icon('edit', 16) ?><?= e(t('Ubah')) ?></a><?php endif; ?>
     <?php if (can('participants', (int) $e['id'])): ?><a class="btn btn-outline sm" href="<?= e(url('admin/peserta', ['ev' => $e['id']])) ?>"><?= icon('users', 16) ?><?= e(t('Peserta')) ?></a><?php endif; ?>
@@ -20,6 +20,7 @@ $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['
     <div class="card-h"><h3><?= e(t('Tautan registrasi')) ?></h3></div>
     <div class="copyrow"><input class="inp" id="reg-link" value="<?= e($regLink) ?>" readonly aria-label="<?= e(t('Tautan registrasi')) ?>"><button type="button" class="btn btn-outline" data-copy="#reg-link"><?= icon('copy', 18) ?><?= e(t('Salin')) ?></button></div>
     <?php if ($e['status'] !== 'Aktif'): ?><p class="hint small" style="color:var(--warn-ink)"><?= e(t('Event berstatus :status. Ubah ke Aktif agar peserta dapat mendaftar.', ['status' => t($e['status'])])) ?></p><?php endif; ?>
+    <?php [$regOpen, $regMsg] = \App\Models\Event::registrationState($e); if ($e['status'] === 'Aktif' && $e['reg_status'] === 'Dibuka' && !$regOpen): ?><p class="hint small" style="color:var(--warn-ink)"><?= e($regMsg) ?></p><?php endif; ?>
     <a class="btn btn-ghost sm" href="<?= e($regLink) ?>" target="_blank" rel="noopener"><?= icon('eye', 16) ?><?= e(t('Lihat halaman publik')) ?></a>
   </div>
   <?php if ($canEdit): ?>
@@ -42,7 +43,8 @@ $attNext = ['notyet' => ['open', t('Buka absensi'), 'btn-primary'], 'open' => ['
     <dl class="kv">
       <div><dt><?= e(t('Penyelenggara')) ?></dt><dd><?= e($e['organizer']) ?></dd></div>
       <div><dt><?= e(t('Lokasi')) ?></dt><dd><?= e($e['location']) ?></dd></div>
-      <div><dt><?= e(t('Periode registrasi')) ?></dt><dd><?= e(date_id($e['reg_start'])) ?> – <?= e(date_id($e['reg_end'])) ?></dd></div>
+      <div><dt><?= e(t('Periode registrasi')) ?></dt><dd><?= e(reg_period($e)) ?></dd></div>
+      <?php if (\App\Models\Event::quota($e) !== null): ?><div><dt><?= e(t('Kuota peserta')) ?></dt><dd><?= e(t(':n dari :q terisi · sisa :s', ['n' => $stats['total'], 'q' => \App\Models\Event::quota($e), 's' => \App\Models\Event::seatsLeft($e)])) ?></dd></div><?php endif; ?>
       <div><dt><?= e(t('Jam absensi')) ?></dt><dd class="mono"><?= e($e['att_start']) ?>–<?= e($e['att_end']) ?></dd></div>
     </dl>
     <?php if ($e['description']): ?><p class="small" style="color:var(--ink2)"><?= nl2br(e($e['description'])) ?></p><?php endif; ?>

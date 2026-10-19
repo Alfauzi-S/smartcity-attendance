@@ -8,7 +8,8 @@ use App\Models\CertVariable;
 /**
  * Menjalankan migrasi aditif di database/migrations/*.{mysql|sqlite}.sql satu kali saja.
  * Migrasi yang sudah dijalankan dicatat di tabel schema_migrations.
- * File migrasi hanya boleh berisi CREATE TABLE/INDEX IF NOT EXISTS (tidak menghapus data).
+ * File migrasi hanya boleh aditif: CREATE TABLE/INDEX IF NOT EXISTS atau ALTER TABLE ... ADD COLUMN
+ * (satu ALTER per file agar aman bila gagal di tengah). Tidak pernah menghapus data.
  */
 final class Migrator
 {

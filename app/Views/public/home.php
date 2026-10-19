@@ -15,10 +15,10 @@
     <div class="g-ev">
       <?php foreach ($events as $ev): ?>
         <a class="evc" href="<?= e(url('e/' . $ev['slug'])) ?>">
-          <div class="row"><?= reg_badge($ev['reg_status']) ?></div>
+          <div class="row"><?= reg_badge(\App\Models\Event::registrationState($ev)[0] ? 'Dibuka' : 'Ditutup') ?></div>
           <h3><?= e($ev['name']) ?></h3>
           <div class="em">
-            <span><?= icon('calendar', 16) ?><?= e(date_id($ev['event_date'], true)) ?> · <?= e($ev['start_time']) ?>–<?= e($ev['end_time']) ?> <?= e(config('timezone_label', 'WITA')) ?></span>
+            <span><?= icon('calendar', 16) ?><?= e(date_id($ev['event_date'], true)) ?> · <?= e(event_time($ev)) ?> <?= e(config('timezone_label', 'WITA')) ?></span>
             <span><?= icon('pin', 16) ?><?= e($ev['location']) ?></span>
           </div>
           <div class="ef"><span class="muted"><?= e($ev['organizer']) ?></span><span class="row" style="gap:4px;color:var(--cyan-ink);font-weight:600"><?= e(t('Lihat event')) ?> <?= icon('arrow', 16) ?></span></div>

@@ -110,12 +110,14 @@ final class CertificateController extends Controller
         $user = $this->manager();
         $this->requireMigrated($user);
         $event = $this->owned($user, (int) input('event_id'), 'cert_manage');
+        CertVariable::seedDefaults(); // pastikan variabel bawaan baru (SIGNER2_*, SIGNER3_*, EVENT_THEME) ada di instalasi lama
         $name = mb_substr(input('name'), 0, 120);
         if (mb_strlen($name) < 3) {
             flash('bad', 'Template belum dibuat', 'Nama template minimal 3 karakter.');
             $this->back('template', $event);
         }
-        $id = CertTemplate::create((int) $event['id'], $name, input('preset') === 'akademik', (int) $user['id']);
+        $preset = in_array(input('preset'), ['akademik', 'modern'], true) ? input('preset') : false;
+        $id = CertTemplate::create((int) $event['id'], $name, $preset, (int) $user['id']);
         AuditLog::add($user, 'cert.template.create', (int) $event['id'], 'template', $id, ['name' => $name, 'preset' => input('preset')]);
         flash('ok', 'Template dibuat', 'Unggah desain latar, lalu atur posisi elemen.');
         redirect('admin/sertifikat/template/' . $id);
@@ -437,6 +439,7 @@ final class CertificateController extends Controller
     public function variables(): void
     {
         [$user, $event] = $this->ctx('cert_manage');
+        CertVariable::seedDefaults();
         $eid = (int) $event['id'];
         $edit = query('ubah') !== '' ? CertVariable::find((int) query('ubah')) : null;
         if ($edit && !($edit['scope'] === 'global' ? $user['role'] === Auth::SUPER : (int) $edit['event_id'] === $eid)) {

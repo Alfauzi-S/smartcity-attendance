@@ -232,6 +232,22 @@ function event_badge(string $status): string
     return '<span class="bdg bdg-' . $tone . '">' . e(t($status)) . '</span>';
 }
 
+/** Jam acara, misalnya "08:00–15:00" atau "08:00–selesai" bila jam selesai dikosongkan. */
+function event_time(array $e): string
+{
+    return $e['start_time'] . '–' . ($e['end_time'] !== '' ? $e['end_time'] : t('selesai'));
+}
+
+/** Periode registrasi untuk ditampilkan, lengkap dengan jam tutup bila ada. */
+function reg_period(array $e): string
+{
+    $end = date_id($e['reg_end'] ?? null);
+    if (!empty($e['reg_end']) && !empty($e['reg_end_time'])) {
+        $end .= ' ' . t('pukul :time', ['time' => $e['reg_end_time']]);
+    }
+    return date_id($e['reg_start'] ?? null) . ' – ' . $end;
+}
+
 function reg_badge(string $status): string
 {
     $label = $status === 'Dibuka' ? 'Registrasi dibuka' : 'Registrasi ditutup';

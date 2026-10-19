@@ -145,6 +145,7 @@ final class Issuer
     {
         $issues = [];
         $count = ['signature' => 0, 'stamp' => 0];
+        $sigAssets = [];
         $hasQr = false;
         foreach ($snap['elements'] as $el) {
             if ($el['type'] === 'qr') {
@@ -156,6 +157,9 @@ final class Issuer
             $label = $el['label'] ?: t(CertAsset::KINDS[$el['slot']] ?? 'Gambar');
             if (isset($count[$el['slot']])) {
                 $count[$el['slot']]++;
+            }
+            if ($el['slot'] === 'signature' && $el['asset_id']) {
+                $sigAssets[] = (int) $el['asset_id'];
             }
             if (!$el['asset_id']) {
                 $issues[] = ['bad', t('Slot ":label" belum diisi aset resmi. Unggah aset atau hapus slot ini.', ['label' => $label])];
@@ -170,8 +174,11 @@ final class Issuer
                 $issues[] = ['bad', t('File aset ":label" tidak ditemukan di server.', ['label' => $label])];
             }
         }
-        if ($count['signature'] > 1) {
-            $issues[] = ['bad', t('Template memuat lebih dari satu tanda tangan pejabat.')];
+        if ($count['signature'] > CertTemplate::MAX_SIGNATURES) {
+            $issues[] = ['bad', t('Template memuat lebih dari :n tanda tangan pejabat.', ['n' => CertTemplate::MAX_SIGNATURES])];
+        }
+        if (count($sigAssets) !== count(array_unique($sigAssets))) {
+            $issues[] = ['bad', t('Aset tanda tangan yang sama dipakai lebih dari sekali. Setiap penanda tangan harus memakai tanda tangannya sendiri.')];
         }
         if ($count['stamp'] > 1) {
             $issues[] = ['bad', t('Template memuat lebih dari satu stempel resmi.')];

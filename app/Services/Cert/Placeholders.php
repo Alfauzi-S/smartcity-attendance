@@ -92,7 +92,7 @@ final class Placeholders
             'EVENT_ID' => (string) $event['id'],
             'EVENT_DATE' => self::longDate($event['event_date']),
             'EVENT_LOCATION' => $event['location'],
-            'EVENT_TIME' => $event['start_time'] . '–' . $event['end_time'],
+            'EVENT_TIME' => $event['start_time'] . '–' . ($event['end_time'] !== '' ? $event['end_time'] : 'selesai'), // PDF selalu berbahasa Indonesia
             'ORGANIZER_NAME' => $event['organizer'],
             default => null,
         };

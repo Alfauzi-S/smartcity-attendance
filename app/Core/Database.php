@@ -130,6 +130,30 @@ final class Database
         return $found;
     }
 
+    /** @var array<string, true> kolom yang sudah dipastikan ada (hanya hasil positif yang disimpan) */
+    private static array $columns = [];
+
+    public static function columnExists(string $table, string $column): bool
+    {
+        $key = $table . '.' . $column;
+        if (isset(self::$columns[$key])) {
+            return true;
+        }
+        try {
+            if (self::driver() === 'sqlite') {
+                $found = in_array($column, array_column(self::all('PRAGMA table_info(' . $table . ')'), 'name'), true);
+            } else {
+                $found = (bool) self::one('SHOW COLUMNS FROM ' . $table . ' LIKE ' . self::pdo()->quote($column));
+            }
+        } catch (Throwable) {
+            return false;
+        }
+        if ($found) {
+            self::$columns[$key] = true;
+        }
+        return $found;
+    }
+
     /** Menjalankan file .sql yang berisi beberapa perintah dipisah titik koma. */
     public static function runFile(string $file): void
     {

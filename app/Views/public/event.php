@@ -1,14 +1,16 @@
 <?php $tz = config('timezone_label', 'WITA'); ?>
 <section class="hero">
   <div class="in">
-    <div class="row"><?= reg_badge($event['reg_status']) ?><?php if ($event['status'] !== 'Aktif'): ?><?= event_badge($event['status']) ?><?php endif; ?></div>
+    <div class="row"><?= reg_badge($open ? 'Dibuka' : 'Ditutup') ?><?php if ($event['status'] !== 'Aktif'): ?><?= event_badge($event['status']) ?><?php endif; ?></div>
     <h1><?= e($event['name']) ?></h1>
     <?php if ($event['description']): ?><p><?= nl2br(e($event['description'])) ?></p><?php endif; ?>
     <div class="meta">
       <div><?= icon('calendar', 18) ?><?= e(date_id($event['event_date'], true)) ?></div>
-      <div><?= icon('clock', 18) ?><?= e($event['start_time']) ?>–<?= e($event['end_time']) ?> <?= e($tz) ?></div>
+      <div><?= icon('clock', 18) ?><?= e(event_time($event)) ?> <?= e($tz) ?></div>
       <div><?= icon('pin', 18) ?><?= e($event['location']) ?></div>
       <div><?= icon('building', 18) ?><?= e($event['organizer']) ?></div>
+      <?php if (($quota = \App\Models\Event::quota($event)) !== null): ?><div><?= icon('users', 18) ?><?= e(t('Kuota :q peserta · sisa :s kursi', ['q' => $quota, 's' => \App\Models\Event::seatsLeft($event)])) ?></div><?php endif; ?>
+      <?php if ($open && !empty($event['reg_end'])): ?><div><?= icon('clock', 18) ?><?= e(t('Registrasi ditutup :date', ['date' => date_id($event['reg_end'])]) . (!empty($event['reg_end_time']) ? ' ' . t('pukul :time', ['time' => $event['reg_end_time']]) . ' ' . config('timezone_label', 'WITA') : '')) ?></div><?php endif; ?>
     </div>
     <div class="ctas">
       <?php if ($open): ?>
@@ -35,12 +37,12 @@
       <div class="card-h"><h3><?= e(t('Jadwal')) ?></h3></div>
       <div class="sched">
         <?php if ($event['reg_start'] || $event['reg_end']): ?>
-        <div><span class="mono"><?= e(t('Registrasi')) ?></span><span><?= e(date_id($event['reg_start'])) ?> – <?= e(date_id($event['reg_end'])) ?></span></div>
+        <div><span class="mono"><?= e(t('Registrasi')) ?></span><span><?= e(reg_period($event)) ?></span></div>
         <?php endif; ?>
         <div><span class="mono"><?= e($event['att_start']) ?></span><span><?= e(t('Absensi QR dibuka di lokasi')) ?></span></div>
         <div><span class="mono"><?= e($event['start_time']) ?></span><span><?= e(t('Acara dimulai')) ?></span></div>
         <div><span class="mono"><?= e($event['att_end']) ?></span><span><?= e(t('Absensi QR ditutup')) ?></span></div>
-        <div><span class="mono"><?= e($event['end_time']) ?></span><span><?= e(t('Acara selesai')) ?></span></div>
+        <?php if ($event['end_time'] !== ''): ?><div><span class="mono"><?= e($event['end_time']) ?></span><span><?= e(t('Acara selesai')) ?></span></div><?php endif; ?>
       </div>
     </div>
     <div class="card">

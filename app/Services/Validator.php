@@ -77,11 +77,14 @@ final class Validator
             $e['event_date'] = t('Pilih tanggal event.');
         }
         foreach (['start_time' => 'jam mulai', 'end_time' => 'jam selesai', 'att_start' => 'waktu mulai absensi', 'att_end' => 'waktu selesai absensi'] as $k => $label) {
+            if ($k === 'end_time' && $d[$k] === '') {
+                continue; // jam selesai boleh kosong: acara "sampai selesai"
+            }
             if (!preg_match($time, $d[$k])) {
                 $e[$k] = t('Isi :label (format JJ:MM).', ['label' => t($label)]);
             }
         }
-        if (!isset($e['end_time']) && !isset($e['start_time']) && $d['end_time'] <= $d['start_time']) {
+        if ($d['end_time'] !== '' && !isset($e['end_time']) && !isset($e['start_time']) && $d['end_time'] <= $d['start_time']) {
             $e['end_time'] = t('Harus setelah jam mulai.');
         }
         if (!isset($e['att_end']) && !isset($e['att_start']) && $d['att_end'] <= $d['att_start']) {
@@ -97,6 +100,16 @@ final class Validator
         }
         if ($d['reg_end'] && !isset($e['event_date']) && $d['reg_end'] > $d['event_date']) {
             $e['reg_end'] = t('Registrasi harus ditutup paling lambat pada hari event.');
+        }
+        if (array_key_exists('quota', $d) && $d['quota'] !== null && (!ctype_digit($d['quota']) || (int) $d['quota'] < 1 || (int) $d['quota'] > 100000)) {
+            $e['quota'] = t('Kuota berupa angka 1–100000, atau kosongkan bila tanpa batas.');
+        }
+        if (!empty($d['reg_end_time'])) {
+            if (!preg_match($time, $d['reg_end_time'])) {
+                $e['reg_end_time'] = t('Format jam tidak valid (JJ:MM).');
+            } elseif (!$d['reg_end']) {
+                $e['reg_end_time'] = t('Isi tanggal registrasi ditutup terlebih dahulu.');
+            }
         }
         if (!in_array($d['status'], Event::STATUSES, true)) {
             $e['status'] = t('Pilih status event.');

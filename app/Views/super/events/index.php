@@ -11,7 +11,7 @@
       <div class="row"><?= event_badge($ev['status']) ?><?= reg_badge($ev['reg_status']) ?></div>
       <h3><?= e($ev['name']) ?></h3>
       <div class="em">
-        <span><?= icon('calendar', 16) ?><?= e(date_id($ev['event_date'], true)) ?> · <?= e($ev['start_time']) ?>–<?= e($ev['end_time']) ?></span>
+        <span><?= icon('calendar', 16) ?><?= e(date_id($ev['event_date'], true)) ?> · <?= e(event_time($ev)) ?></span>
         <span><?= icon('pin', 16) ?><?= e($ev['location']) ?></span>
       </div>
       <div class="ef"><span><b><?= (int) $ev['stats']['hadir'] ?></b> <?= e(t('hadir dari :total', ['total' => (int) $ev['stats']['total']])) ?></span><?= att_badge($ev['att_status']) ?></div>

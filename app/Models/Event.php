@@ -72,6 +72,34 @@ final class Event
         DB::run('DELETE FROM events WHERE id = ?', [$id]);
     }
 
+    /** Kolom kuota dan jam tutup registrasi baru ada setelah migrasi 2026_10_19 dijalankan. */
+    public static function hasQuotaColumns(): bool
+    {
+        return DB::columnExists('events', 'quota') && DB::columnExists('events', 'reg_end_time');
+    }
+
+    /** Kuota peserta, atau null bila tanpa batas. */
+    public static function quota(array $e): ?int
+    {
+        return isset($e['quota']) && (int) $e['quota'] > 0 ? (int) $e['quota'] : null;
+    }
+
+    /** Sisa kursi, atau null bila tanpa batas. */
+    public static function seatsLeft(array $e): ?int
+    {
+        $q = self::quota($e);
+        return $q === null ? null : max(0, $q - self::participantCount((int) $e['id']));
+    }
+
+    /** Batas akhir registrasi (Y-m-d H:i), atau null bila tidak diatur. */
+    public static function regDeadline(array $e): ?string
+    {
+        if (empty($e['reg_end'])) {
+            return null;
+        }
+        return $e['reg_end'] . ' ' . (!empty($e['reg_end_time']) ? $e['reg_end_time'] : '23:59');
+    }
+
     public static function participantCount(int $id): int
     {
         return (int) DB::value('SELECT COUNT(*) FROM participants WHERE event_id = ?', [$id]);
@@ -92,8 +120,14 @@ final class Event
         if ($e['reg_start'] && today() < $e['reg_start']) {
             return [false, t('Registrasi dibuka mulai :date.', ['date' => date_id($e['reg_start'])])];
         }
-        if ($e['reg_end'] && today() > $e['reg_end']) {
-            return [false, t('Periode registrasi berakhir pada :date.', ['date' => date_id($e['reg_end'])])];
+        $deadline = self::regDeadline($e);
+        if ($deadline && date('Y-m-d H:i') > $deadline) {
+            return [false, !empty($e['reg_end_time'])
+                ? t('Periode registrasi berakhir pada :date pukul :time.', ['date' => date_id($e['reg_end']), 'time' => $e['reg_end_time']])
+                : t('Periode registrasi berakhir pada :date.', ['date' => date_id($e['reg_end'])])];
+        }
+        if (self::seatsLeft($e) === 0) {
+            return [false, t('Kuota peserta sudah penuh (:n orang). Registrasi ditutup otomatis.', ['n' => self::quota($e)])];
         }
         return [true, ''];
     }

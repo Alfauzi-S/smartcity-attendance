@@ -16,8 +16,46 @@ final class CertTemplate
 {
     public const STATUSES = ['Draft' => 'mute', 'Active' => 'ok', 'Archived' => 'navy'];
     public const FORMATS = ['A4' => [210, 297], 'A5' => [148, 210], 'F4' => [215, 330], 'Letter' => [215.9, 279.4], 'Legal' => [215.9, 355.6], 'custom' => null];
-    public const FONTS = ['dejavusans' => 'Sans (DejaVu Sans)', 'dejavuserif' => 'Serif (DejaVu Serif)', 'dejavusanscondensed' => 'Sans Condensed'];
-    public const MAX_ELEMENTS = 60;
+    public const FONTS = [
+        'dejavusans' => 'Sans (DejaVu Sans)', 'dejavuserif' => 'Serif (DejaVu Serif)', 'dejavusanscondensed' => 'Sans Condensed',
+        'sora300' => 'Sora Light', 'sora' => 'Sora', 'sora600' => 'Sora SemiBold', 'sora800' => 'Sora ExtraBold',
+        'montserrat' => 'Montserrat', 'cormorant' => 'Cormorant Garamond (serif klasik)',
+        'greatvibes' => 'Great Vibes (tulisan tangan)', 'pinyonscript' => 'Pinyon Script (tulisan tangan)',
+    ];
+    /**
+     * Detail font: [keluarga CSS editor, ketebalan CSS, punya varian tebal, punya varian miring, file di resources/fonts].
+     * Font non-DejaVu berlisensi SIL OFL 1.1 (lihat resources/fonts/licenses).
+     */
+    public const FONT_META = [
+        'dejavusans' => ['"DejaVu Sans", Verdana, sans-serif', 400, true, true, false],
+        'dejavuserif' => ['Georgia, "DejaVu Serif", serif', 400, true, true, false],
+        'dejavusanscondensed' => ['"DejaVu Sans Condensed", "Arial Narrow", sans-serif', 400, true, false, false],
+        'sora300' => ['CertSora, sans-serif', 300, false, false, true],
+        'sora' => ['CertSora, sans-serif', 400, true, false, true],
+        'sora600' => ['CertSora, sans-serif', 600, false, false, true],
+        'sora800' => ['CertSora, sans-serif', 800, false, false, true],
+        'montserrat' => ['CertMontserrat, sans-serif', 400, true, true, true],
+        'cormorant' => ['CertCormorant, serif', 500, true, true, true],
+        'greatvibes' => ['CertGreatVibes, cursive', 400, false, false, true],
+        'pinyonscript' => ['CertPinyon, cursive', 400, false, false, true],
+    ];
+    /** Bentuk dekoratif. Titik poligon dalam persen kotak elemen. */
+    public const SHAPES = [
+        'rect' => 'Persegi / pita', 'ellipse' => 'Lingkaran / elips', 'line' => 'Garis',
+        'triangle' => 'Segitiga', 'rtriangle' => 'Segitiga siku', 'diamond' => 'Belah ketupat',
+        'parallelogram' => 'Jajar genjang', 'trapezoid' => 'Trapesium', 'hexagon' => 'Segi enam',
+    ];
+    public const POLYGONS = [
+        'triangle' => [50, 0, 100, 100, 0, 100],
+        'rtriangle' => [0, 0, 100, 100, 0, 100],
+        'diamond' => [50, 0, 100, 50, 50, 100, 0, 50],
+        'parallelogram' => [25, 0, 100, 0, 75, 100, 0, 100],
+        'trapezoid' => [20, 0, 80, 0, 100, 100, 0, 100],
+        'hexagon' => [25, 0, 75, 0, 100, 50, 75, 100, 25, 100, 0, 50],
+    ];
+    public const MAX_ELEMENTS = 80;
+    /** Batas tanda tangan pejabat per template (mis. Dekan, Koordinator Prodi, Ketua Panitia). */
+    public const MAX_SIGNATURES = 3;
 
     public static function find(int $id): ?array
     {
@@ -65,11 +103,17 @@ final class CertTemplate
         return is_array($list) ? $list : [];
     }
 
-    public static function create(int $eventId, string $name, bool $preset, int $by): int
+    /** @param bool|string $preset true/'akademik', 'modern', atau false/'kosong' */
+    public static function create(int $eventId, string $name, bool|string $preset, int $by): int
     {
+        $elements = match (true) {
+            $preset === true, $preset === 'akademik' => self::academicPreset(),
+            $preset === 'modern' => self::modernPreset(),
+            default => [],
+        };
         return DB::insert('cert_templates', [
             'event_id' => $eventId, 'name' => $name, 'status' => 'Draft', 'page_format' => 'A4', 'orientation' => 'L',
-            'width_mm' => 297, 'height_mm' => 210, 'elements' => json_encode($preset ? self::academicPreset() : [], JSON_UNESCAPED_UNICODE),
+            'width_mm' => 297, 'height_mm' => 210, 'elements' => json_encode($elements, JSON_UNESCAPED_UNICODE),
             'version' => 0, 'created_by' => $by, 'updated_by' => $by, 'created_at' => now(), 'updated_at' => now(),
         ]);
     }
@@ -107,6 +151,61 @@ final class CertTemplate
         ];
     }
 
+    /**
+     * Tata letak modern gelap (navy-teal, font Sora) dengan tiga blok penanda tangan.
+     * Slot logo dan tanda tangan kosong; nama, jabatan, NIP, dan tema diambil dari variabel yang diisi admin.
+     */
+    public static function modernPreset(): array
+    {
+        $text = static fn (string $id, string $content, float $x, float $y, float $w, string $font, float $size, string $color, array $o = []) => $o + [
+            'id' => $id, 'type' => 'text', 'content' => $content, 'x' => $x, 'y' => $y, 'w' => $w, 'font' => $font, 'size' => $size,
+            'bold' => false, 'italic' => false, 'underline' => false, 'upper' => false, 'color' => $color, 'opacity' => 1, 'rot' => 0,
+            'align' => 'L', 'lh' => 1.25, 'ls' => 0, 'fit' => false,
+        ];
+        $shape = static fn (string $id, string $kind, float $x, float $y, float $w, float $h, string $fill, array $o = []) => $o + [
+            'id' => $id, 'type' => 'shape', 'shape' => $kind, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'fill' => $fill, 'fill2' => '',
+            'grad' => 'h', 'opacity' => 1, 'stroke' => '', 'sw' => 0, 'radius' => 0, 'rot' => 0, 'flip' => false, 'dash' => false,
+        ];
+        $slot = static fn (string $id, string $slot, string $label, float $x, float $y, float $w, float $h) => [
+            'id' => $id, 'type' => 'image', 'slot' => $slot, 'label' => $label, 'asset_id' => null, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h,
+        ];
+        $navy = '#0B1F3A';
+        $els = [
+            $shape('bg', 'rect', 0, 0, 100, 100, '#0B1F3A', ['fill2' => '#123A5A', 'grad' => 'd', 'lock' => true]),
+            $shape('gm1', 'parallelogram', 70, 0, 34, 46, '#0F766E', ['opacity' => 0.9]),
+            $shape('gm2', 'rtriangle', 80, 18, 20, 52, '#14B8A6', ['opacity' => 0.75, 'flip' => true]),
+            $shape('gm3', 'triangle', 66, 44, 22, 35, '#0D9488', ['opacity' => 0.55]),
+            $shape('gm4', 'diamond', 88, 58, 10, 16, '#5EEAD4', ['opacity' => 0.35]),
+            $shape('gm5', 'line', 5, 17, 14, 1, '', ['stroke' => '#2DD4BF', 'sw' => 1.2]),
+            $slot('lg1', 'logo', 'Logo Universitas Mulawarman', 5, 5, 6, 9),
+            $slot('lg2', 'logo', 'Logo Fakultas Teknik', 12, 5, 6, 9),
+            $slot('lg3', 'logo', 'Logo Program Studi Informatika', 19, 5, 6, 9),
+            $text('ttl', 'SERTIFIKAT', 5, 20, 60, 'sora800', 50, '#FFFFFF', ['ls' => 4]),
+            $text('num', 'Nomor Sertifikat: {CERTIFICATE_NUMBER}', 5, 34, 60, 'sora', 11, '#B9C7D8'),
+            $text('giv', 'DIBERIKAN KEPADA', 5, 41, 60, 'sora600', 12, '#5EEAD4', ['ls' => 2.5]),
+            $text('nam', '{PARTICIPANT_NAME}', 5, 45, 62, 'greatvibes', 44, '#FFFFFF', ['fit' => true]),
+            $shape('nml', 'line', 5, 59, 50, 1, '', ['stroke' => '#2DD4BF', 'sw' => 0.6]),
+            $text('rol', 'Sebagai PESERTA', 5, 61, 60, 'sora600', 14, '#FFFFFF', ['ls' => 1]),
+            $text('dsc', 'Pada kegiatan {EVENT_NAME} dengan tema “{EVENT_THEME}” yang diselenggarakan pada tanggal {EVENT_DATE}.', 5, 66.5, 60, 'sora', 11, '#DCE5F0', ['lh' => 1.45]),
+            $shape('band', 'rect', 0, 79, 100, 21, '#F1F5F9', ['lock' => true]),
+            $shape('bandl', 'rect', 0, 79, 100, 0.8, '#14B8A6'),
+        ];
+        foreach (['' => 4, '2' => 27, '3' => 50] as $n => $x) {
+            $els[] = $text('st' . ($n ?: '1'), '{SIGNER' . $n . '_TITLE}', $x, 81.5, 21, 'sora600', 8.5, $navy, ['align' => 'C', 'lh' => 1.15]);
+            $els[] = $slot('sg' . ($n ?: '1'), 'signature', 'Tanda tangan penanda tangan ' . ($n ?: '1'), $x + 4, 85, 13, 7);
+            $els[] = $text('sn' . ($n ?: '1'), '{SIGNER' . $n . '_NAME}', $x, 92.3, 21, 'sora600', 8.5, $navy, ['align' => 'C', 'underline' => true]);
+            $els[] = $text('si' . ($n ?: '1'), 'NIP. {SIGNER' . $n . '_ID}', $x, 95.8, 21, 'sora', 7.5, '#334155', ['align' => 'C']);
+        }
+        $els[] = ['id' => 'qr', 'type' => 'qr', 'x' => 85.5, 'y' => 81, 'size' => 8];
+        $els[] = $text('qrt', 'Pindai untuk verifikasi', 79, 95.8, 20, 'sora', 7, '#334155', ['align' => 'C']);
+        return $els;
+    }
+
+    private static function hex(mixed $v, string $def): string
+    {
+        return is_string($v) && preg_match('/^#[0-9a-fA-F]{6}$/', $v) ? strtoupper($v) : $def;
+    }
+
     private static function num(mixed $v, float $min, float $max, float $def): float
     {
         return is_numeric($v) ? round(max($min, min($max, (float) $v)), 2) : $def;
@@ -128,13 +227,18 @@ final class CertTemplate
         $errors = [];
         $ids = [];
         foreach (array_values($input) as $i => $el) {
-            if (!is_array($el) || !in_array($el['type'] ?? '', ['text', 'image', 'qr'], true)) {
+            if (!is_array($el) || !in_array($el['type'] ?? '', ['text', 'image', 'qr', 'shape'], true)) {
                 $errors[] = t('Elemen #:n tidak dikenal.', ['n' => $i + 1]);
                 continue;
             }
             $id = is_string($el['id'] ?? null) && preg_match('/^[a-z0-9]{1,12}$/', $el['id']) && !isset($ids[$el['id']]) ? $el['id'] : 'e' . bin2hex(random_bytes(3));
             $ids[$id] = true;
-            $base = ['id' => $id, 'type' => $el['type'], 'x' => self::num($el['x'] ?? 0, 0, 100, 0), 'y' => self::num($el['y'] ?? 0, 0, 100, 0)];
+            // Bentuk boleh keluar sedikit dari tepi halaman (efek bleed); elemen lain tetap di dalam halaman.
+            $lo = $el['type'] === 'shape' ? -50 : 0;
+            $base = ['id' => $id, 'type' => $el['type'], 'x' => self::num($el['x'] ?? 0, $lo, 100, 0), 'y' => self::num($el['y'] ?? 0, $lo, 100, 0)];
+            if (!empty($el['lock'])) {
+                $base['lock'] = true; // hanya penanda editor: elemen tidak ikut terseret di kanvas
+            }
             if ($el['type'] === 'text') {
                 $content = is_string($el['content'] ?? null) ? $el['content'] : '';
                 $content = (string) preg_replace('/[\x00-\x09\x0B-\x1F\x7F]/u', '', mb_substr(str_replace("\r", '', $content), 0, 600));
@@ -145,7 +249,11 @@ final class CertTemplate
                     'size' => self::num($el['size'] ?? 14, 4, 120, 14),
                     'bold' => !empty($el['bold']),
                     'italic' => !empty($el['italic']),
-                    'color' => is_string($el['color'] ?? null) && preg_match('/^#[0-9a-fA-F]{6}$/', $el['color']) ? strtoupper($el['color']) : '#1F2937',
+                    'underline' => !empty($el['underline']),
+                    'upper' => !empty($el['upper']),
+                    'color' => self::hex($el['color'] ?? null, '#1F2937'),
+                    'opacity' => self::num($el['opacity'] ?? 1, 0.05, 1, 1),
+                    'rot' => self::num($el['rot'] ?? 0, -180, 180, 0),
                     'align' => in_array($el['align'] ?? '', ['L', 'C', 'R', 'J'], true) ? $el['align'] : 'C',
                     'lh' => self::num($el['lh'] ?? 1.25, 0.8, 3, 1.25),
                     'ls' => self::num($el['ls'] ?? 0, -1, 10, 0),
@@ -166,6 +274,22 @@ final class CertTemplate
                     'asset_id' => $assetId,
                     'w' => self::num($el['w'] ?? 10, 1, 100, 10),
                     'h' => self::num($el['h'] ?? 10, 1, 100, 10),
+                ];
+            } elseif ($el['type'] === 'shape') {
+                $out[] = $base + [
+                    'shape' => isset(self::SHAPES[$el['shape'] ?? '']) ? $el['shape'] : 'rect',
+                    'w' => self::num($el['w'] ?? 20, 0.2, 200, 20),
+                    'h' => self::num($el['h'] ?? 10, 0.2, 200, 10),
+                    'fill' => ($el['fill'] ?? '') === '' ? '' : self::hex($el['fill'], '#0F766E'),
+                    'fill2' => ($el['fill2'] ?? '') === '' ? '' : self::hex($el['fill2'], ''),
+                    'grad' => in_array($el['grad'] ?? '', ['h', 'v', 'd'], true) ? $el['grad'] : 'h',
+                    'opacity' => self::num($el['opacity'] ?? 1, 0.05, 1, 1),
+                    'stroke' => ($el['stroke'] ?? '') === '' ? '' : self::hex($el['stroke'], '#0B1220'),
+                    'sw' => self::num($el['sw'] ?? 0, 0, 10, 0),
+                    'radius' => self::num($el['radius'] ?? 0, 0, 50, 0),
+                    'rot' => self::num($el['rot'] ?? 0, -180, 180, 0),
+                    'flip' => !empty($el['flip']),
+                    'dash' => !empty($el['dash']),
                 ];
             } else {
                 $out[] = $base + ['size' => self::num($el['size'] ?? 12, 3, 40, 12)];
