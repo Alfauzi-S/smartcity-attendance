@@ -72,6 +72,7 @@ Step-by-step instructions with screenshots for every role are in the [user manua
 - `gd` and `fileinfo` for certificates; `zip` for Excel export and certificate ZIP downloads (CSV works without it)
 - MySQL 5.7+ / MySQL 8 / MariaDB 10.3+ (or SQLite 3 for testing)
 - Apache with `mod_rewrite`, or Nginx
+- Or **Docker** with Docker Compose: the included stack already provides PHP 8.5, Nginx and MariaDB — see [Docker deployment](#docker-deployment)
 - **HTTPS** for the scanner camera. Browsers only allow the camera on HTTPS or `localhost`; without it, the scanner falls back to code entry and manual search.
 
 ## Installation
@@ -140,6 +141,33 @@ php -S localhost:8000 -t public public/index.php
 
 Open `http://localhost:8000/install`. The camera works on `localhost` without HTTPS.
 
+### Docker deployment
+
+The repository ships a ready-to-run Docker stack (Nginx + PHP-FPM + MariaDB), with `storage/` and the source tree kept on the host:
+
+| Service | Image | Role |
+|---|---|---|
+| `web` | `nginx:alpine` (latest) | serves `public/` and forwards PHP to `app`; the only service that publishes a host port |
+| `app` | built from `docker/php/Dockerfile` | the application on `php:8.5-fpm-alpine`, with `pdo_mysql`, `mbstring`, `gd`, `zip` and OPcache |
+| `db` | `mariadb:13.0` (latest GA) | database; data lives in the named volume `smartcity_attendance_db`, the port is not published |
+
+```bash
+cp .env.example .env          # fill in DB_PASSWORD and DB_ROOT_PASSWORD
+docker compose up -d --build  # or: docker-compose up -d --build
+```
+
+Then open `/install` (for example `http://<server>:8090/install`) and create the Super Admin.
+
+Notes:
+
+- `config/config.php` is generated from `.env` on every start of the `app` container (`APP_CONFIG_SYNC=true`). To change a setting, edit `.env` and restart the stack — do not edit the generated file by hand. `docker/php/generate-config.php` lists every supported variable.
+- The stack publishes `${APP_BIND_IP}:${APP_PORT}` (default `0.0.0.0:8090`). Set `APP_BIND_IP` to a LAN address when only a reverse proxy should reach it, and never reuse a port that another stack on the host already uses.
+- Behind a reverse proxy, leave `APP_BASE_URL` empty: the `Host` header and the `X-Forwarded-Proto` sent by the proxy are used to build the `https://` links (required for QR codes and the camera). The included Nginx config also honours `X-Real-IP` so per-IP rate limits see the real client address.
+- The source code is bind-mounted, so edits apply without rebuilding the image (OPCache revalidates within 2 seconds).
+- Upgrading an existing database: keep `DB_PASSWORD`/`DB_ROOT_PASSWORD` unchanged, deploy the new stack, then run the pending migrations with `docker compose exec app php bin/migrate.php --yes` (the dashboard also has a run-migrations button for the Super Admin).
+- Database backup: `docker compose exec db sh -c 'mariadb-dump -uroot -p"$MARIADB_ROOT_PASSWORD" smartcity_attendance' > backup.sql` (the container already has the root password in its environment).
+- Logs: `docker compose logs -f web app db`; PHP errors are written to `storage/logs/php-error.log`.
+
 ## Upgrading an existing installation
 
 Updates only **add** tables and never drop, rename or empty existing ones, so events, participants, accounts and attendance stay intact.
@@ -204,6 +232,9 @@ app/
 bin/             migrate.php, seed-demo.php (command line only)
 config/          config.example.php -> copy to config.php
 database/        schema.mysql.sql, schema.sqlite.sql, migrations/
+docker/          PHP-FPM Dockerfile, Nginx config, entrypoint, config generator
+docker-compose.yml  web (Nginx) + app (PHP-FPM) + db (MariaDB) services
+.env.example     environment variables for the Docker stack (copy to .env)
 public/          index.php (front controller), assets (css, js, vendor, img)
 storage/         SQLite file (optional), logs, certificate assets, generated PDFs
 vendor/          TCPDF and FPDI (bundled, no Composer needed)

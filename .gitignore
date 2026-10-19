@@ -4,3 +4,6 @@
 /storage/logs/*.log
 /storage/cert/
 /storage/certificates/
+/storage/sessions/
+/.env
+/.opencode/

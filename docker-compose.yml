@@ -1,0 +1,102 @@
+# SmartCity Attendance - stack Docker.
+#
+#   web : Nginx (image nginx:alpine terbaru) -> satu-satunya service yang mengekspos port ke host
+#   app : PHP 8.5 FPM (docker/php/Dockerfile) -> aplikasi
+#   db  : MariaDB 13.0 (GA terbaru), data tersimpan di volume bernama
+#
+# Port default 8090 - bukan port yang dipakai stack lain di server ini
+# (80, 443, 2201-2204, 8001-8004, 4431-4433, 3001, 3790, 7777, 8039).
+# Nginx proxy di /sites/pbo meneruskan smartcity-unmul.web.id ke
+# http://10.1.201.3:8090 (lihat /sites/pbo/nginx/conf.d/smartcity-unmul.conf).
+#
+# Jalankan : docker compose up -d --build
+# Instalasi: https://smartcity-unmul.web.id/install  (atau http://<host>:8090/install)
+
+services:
+  web:
+    image: nginx:alpine
+    container_name: smartcity_web
+    restart: unless-stopped
+    ports:
+      - "${APP_BIND_IP:-0.0.0.0}:${APP_PORT:-8090}:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: smartcity-attendance-app
+    container_name: smartcity_app
+    restart: unless-stopped
+    volumes:
+      # Kode di-bind mount supaya perubahan langsung terpakai tanpa rebuild.
+      - ./:/var/www/html
+    environment:
+      # Aplikasi (dipakai docker/php/generate-config.php untuk membuat config/config.php)
+      APP_NAME: ${APP_NAME:-SmartCity Attendance}
+      APP_BASE_URL: ${APP_BASE_URL:-}
+      APP_LOCALE: ${APP_LOCALE:-id}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Makassar}
+      APP_TIMEZONE_LABEL: ${APP_TIMEZONE_LABEL:-WITA}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_PRETTY_URLS: ${APP_PRETTY_URLS:-true}
+      APP_CONFIG_SYNC: ${APP_CONFIG_SYNC:-true}
+      CERT_MAX_UPLOAD_MB: ${CERT_MAX_UPLOAD_MB:-8}
+      CERT_BATCH_SIZE: ${CERT_BATCH_SIZE:-10}
+      CERT_SEARCH_PER_10MIN: ${CERT_SEARCH_PER_10MIN:-30}
+      CERT_DOWNLOAD_FAIL_PER_15MIN: ${CERT_DOWNLOAD_FAIL_PER_15MIN:-8}
+      # Database (nama service "db" sebagai host; port tidak dipublikasikan ke host)
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-smartcity_attendance}
+      DB_USER: ${DB_USER:-smartcity}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD belum diisi. Salin .env.example menjadi .env.}
+    depends_on:
+      db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    image: mariadb:13.0
+    container_name: smartcity_db
+    restart: unless-stopped
+    # Beri waktu MariaDB menutup dengan rapi saat container dihentikan.
+    stop_grace_period: 1m
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-smartcity_attendance}
+      MARIADB_USER: ${DB_USER:-smartcity}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD belum diisi. Salin .env.example menjadi .env.}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD belum diisi. Salin .env.example menjadi .env.}
+      MARIADB_AUTO_UPGRADE: "1"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      # Upgrade besar (mis. 12.3 -> 13.0) dijalankan otomatis saat start pertama.
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  db_data:
+    # Nama volume dipertahankan: data instalasi yang sudah ada tetap terpakai.
+    name: smartcity_attendance_db
