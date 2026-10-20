@@ -270,6 +270,7 @@ return [
     'Maret' => 'March',
     'Melihat audit log event' => 'View event audit log',
     'Melihat dan mengoreksi data peserta' => 'View and correct participant data',
+    'Melihat, mengoreksi, dan menghapus data peserta' => 'View, correct, and delete participant data',
     'Melihat laporan, riwayat, dan mengekspor' => 'View reports and history, and export',
     'Memenuhi syarat' => 'Eligible',
     'Memindai QR / memproses presensi' => 'Scan QR / process attendance',

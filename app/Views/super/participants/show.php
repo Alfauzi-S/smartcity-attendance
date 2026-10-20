@@ -2,6 +2,7 @@
 use App\Core\View;
 use App\Models\Participant;
 use App\Models\ParticipantOptions;
+use App\Services\Access;
 
 $cls = static fn (string $k) => 'fld' . (isset($errors[$k]) ? ' is-err' : '');
 $base = 'admin/peserta/' . $p['id'];
@@ -68,4 +69,17 @@ $preset = in_array($openStatus, ['hadir', 'tidak'], true) ? $openStatus : '';
   </form>
 </div>
 <?php endif; ?>
+
+<?php if (Access::can($user, (int) $p['event_id'], 'participants')): ?>
+<div class="card">
+  <div class="card-h"><h3><?= e(t('Hapus peserta')) ?></h3></div>
+  <?php if (!empty($hasCert)): ?>
+    <p class="small muted"><?= e(t('Peserta ini sudah memiliki sertifikat sehingga tidak dapat dihapus. Data sertifikat disimpan untuk keperluan verifikasi.')) ?></p>
+  <?php else: ?>
+    <p class="small muted"><?= e(t('Gunakan untuk peserta yang salah mendaftar atau duplikat. Data peserta, tiket QR, dan riwayat statusnya akan dihapus permanen; audit log tetap tersimpan.')) ?></p>
+    <div><?= post_button('admin/peserta/' . $p['id'] . '/hapus', t('Hapus peserta'), [], 'btn btn-danger sm', t('Hapus peserta ":name"? Data peserta, tiket QR, dan riwayat statusnya akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.', ['name' => $p['full_name']]), 'trash') ?></div>
+  <?php endif; ?>
+</div>
+<?php endif; ?>
+
 <template id="tpl-badges"><span data-b="hadir"><?= status_badge('hadir', true) ?></span><span data-b="tidak"><?= status_badge('tidak', true) ?></span></template>

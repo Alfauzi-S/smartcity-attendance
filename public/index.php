@@ -83,6 +83,7 @@ $r->get('/admin/peserta', [ParticipantController::class, 'index']);
 $r->get('/admin/peserta/{id}', [ParticipantController::class, 'show']);
 $r->post('/admin/peserta/{id}/ubah', [ParticipantController::class, 'update']);
 $r->post('/admin/peserta/{id}/status', [ParticipantController::class, 'status']);
+$r->post('/admin/peserta/{id}/hapus', [ParticipantController::class, 'destroy']);
 $r->get('/admin/riwayat', [ReportController::class, 'history']);
 $r->get('/admin/laporan', [ReportController::class, 'index']);
 $r->get('/admin/ekspor', [ReportController::class, 'export']);

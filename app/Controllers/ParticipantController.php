@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Auth;
+use App\Core\Database as DB;
 use App\Models\Event;
 use App\Models\Participant;
 use App\Models\ParticipantOptions;
@@ -67,10 +68,18 @@ final class ParticipantController extends Controller
             'event' => Event::find((int) $p['event_id']),
             'history' => StatusHistory::forParticipant((int) $p['id']),
             'canStatus' => Access::can($user, (int) $p['event_id'], 'status'),
+            'hasCert' => $this->hasCertificate((int) $p['id']),
             'errors' => [],
             'editing' => query('ubah') === 'data',
             'openStatus' => in_array(query('status'), ['hadir', 'tidak'], true) ? query('status') : (query('ubah') === 'status' ? '1' : ''),
         ]);
+    }
+
+    /** Sertifikat yang sudah terbit (termasuk yang dicabut) mengunci peserta agar riwayat verifikasi tetap utuh. */
+    private function hasCertificate(int $participantId): bool
+    {
+        return DB::tableExists('cert_issuances')
+            && (int) DB::value('SELECT COUNT(*) FROM cert_issuances WHERE participant_id = ?', [$participantId]) > 0;
     }
 
     public function update(string $id): void
@@ -93,6 +102,7 @@ final class ParticipantController extends Controller
                 'p' => $data + $p, 'event' => Event::find((int) $p['event_id']),
                 'history' => StatusHistory::forParticipant((int) $p['id']), 'errors' => $errors, 'editing' => true, 'openStatus' => '',
                 'canStatus' => Access::can($user, (int) $p['event_id'], 'status'),
+                'hasCert' => $this->hasCertificate((int) $p['id']),
             ]);
             return;
         }
@@ -120,5 +130,31 @@ final class ParticipantController extends Controller
         }
         $back = input('back');
         redirect($back === 'list' ? 'admin/peserta' : 'admin/peserta/' . $p['id']);
+    }
+
+    /** Hapus peserta (Super Admin atau Admin Event dengan izin peserta). Ditolak bila sudah memiliki sertifikat. */
+    public function destroy(string $id): void
+    {
+        $user = $this->manager();
+        $p = $this->findOr404($id, $user, 'participants');
+        $eventId = (int) $p['event_id'];
+        $deleted = DB::transaction(function () use ($p, $user, $eventId): bool {
+            if ($this->hasCertificate((int) $p['id'])) {
+                return false;
+            }
+            Participant::delete((int) $p['id']);
+            AuditLog::add($user, 'participant.delete', $eventId, 'participant', $p['id'], [
+                'name' => $p['full_name'],
+                'identity_number' => $p['identity_number'],
+                'status' => $p['status'],
+            ]);
+            return true;
+        });
+        if (!$deleted) {
+            flash('bad', 'Peserta tidak dapat dihapus', 'Peserta ini sudah memiliki sertifikat. Data sertifikat disimpan untuk keperluan verifikasi.');
+            redirect('admin/peserta/' . $p['id']);
+        }
+        flash('ok', 'Peserta dihapus', $p['full_name']);
+        redirect('admin/peserta', ['ev' => $eventId]);
     }
 }

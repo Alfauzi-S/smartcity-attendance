@@ -23,6 +23,7 @@ final class AuditLog
         'event.delete' => 'Event dihapus',
         'participant.update' => 'Data peserta diubah',
         'participant.status' => 'Status kehadiran diubah manual',
+        'participant.delete' => 'Peserta dihapus',
         'report.export' => 'Laporan diekspor',
         'system.migrate' => 'Migrasi database dijalankan',
         'cert.template.create' => 'Template sertifikat dibuat',

@@ -109,6 +109,12 @@ final class Participant
         DB::update('participants', $data, 'id = ?', [$id]);
     }
 
+    /** Hapus permanen. Riwayat status ikut terhapus lewat FK CASCADE; sertifikat harus dicek di controller. */
+    public static function delete(int $id): void
+    {
+        DB::run('DELETE FROM participants WHERE id = ?', [$id]);
+    }
+
     public static function generateCode(): string
     {
         do {

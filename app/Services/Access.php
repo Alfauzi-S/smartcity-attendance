@@ -21,7 +21,7 @@ final class Access
     /** Izin granular yang dapat diberikan ke Admin Event. */
     public const PERMS = [
         'event_edit' => 'Mengubah informasi dan status event',
-        'participants' => 'Melihat dan mengoreksi data peserta',
+        'participants' => 'Melihat, mengoreksi, dan menghapus data peserta',
         'status' => 'Mengubah status kehadiran manual',
         'attendance' => 'Memindai QR / memproses presensi',
         'reports' => 'Melihat laporan, riwayat, dan mengekspor',
